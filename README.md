@@ -13,16 +13,19 @@ Next.js + Neon (Postgres) + Vercel.
 
 ## 1. Neon duomenų bazė
 
-1. [console.neon.tech](https://console.neon.tech) → savo projektas → **Connect**.
-2. Nukopijuok **connection string** (pažymėk *Pooled connection*).
-3. Projekto aplanke nukopijuok `.env.example` į `.env.local` ir įrašyk `DATABASE_URL` bei `ADMIN_PASSWORD`.
-4. Terminale:
+Lentelės **susikuria pačios**, kai puslapis atidaromas pirmą kartą. Reikia tik tuščios duomenų bazės ir jos adreso.
+
+1. Neon → **Postgres database › Databases → New database** → pavadinimas `taryba`.
+2. **Connect** → Database: `taryba`, *Connection pooling* įjungtas → nukopijuok adresą (baigiasi `/taryba?sslmode=require...`).
+3. Vietiniam paleidimui nukopijuok `.env.example` į `.env.local` ir įrašyk `DATABASE_URL` bei `ADMIN_PASSWORD`:
 
 ```bash
 npm install
-npm run db:setup   # sukuria lenteles + pavyzdinius duomenis
-npm run dev        # http://localhost:3000
+npm run dev          # http://localhost:3000
+npm run db:setup     # nebūtina: prideda pavyzdinius renginius ir apklausą
 ```
+
+Naujas lenteles ar stulpelius rašyk `lib/schema.mjs`.
 
 ## 2. Vercel
 
@@ -33,8 +36,6 @@ npm run dev        # http://localhost:3000
    - `ADMIN_PASSWORD`: ilgas slaptažodis tarybai
    - `NEXT_PUBLIC_SCHOOL_NAME`: pvz. `Mokinių taryba`
 4. **Deploy**.
-
-> Galima ir be rankinio kopijavimo: Vercel → projektas → **Storage** → **Neon** sujungia ir pats prideda `DATABASE_URL`. Tada `npm run db:setup` paleisk vieną kartą su tuo adresu `.env.local` faile.
 
 ## 3. Domenas `taryba.arnas.media`
 

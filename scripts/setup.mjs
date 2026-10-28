@@ -1,6 +1,7 @@
-// Sukuria lenteles Neon duomenų bazėje: npm run db:setup
-import { readFileSync } from "node:fs";
+// NEBŪTINA: lentelės susikuria pačios, kai puslapis pirmą kartą atidaromas.
+// Šis skriptas tik prideda pavyzdinius renginius ir apklausą: npm run db:setup
 import { neon } from "@neondatabase/serverless";
+import { SCHEMA } from "../lib/schema.mjs";
 
 if (!process.env.DATABASE_URL) {
   console.error("Trūksta DATABASE_URL (.env.local faile).");
@@ -8,16 +9,7 @@ if (!process.env.DATABASE_URL) {
 }
 
 const sql = neon(process.env.DATABASE_URL);
-const schema = readFileSync(new URL("./schema.sql", import.meta.url), "utf8");
-
-const statements = schema
-  .split(";")
-  .map((s) => s.replace(/--.*$/gm, "").trim())
-  .filter(Boolean);
-
-for (const statement of statements) {
-  await sql.query(statement);
-}
+await sql.transaction(SCHEMA.map((s) => sql.query(s)));
 
 // Pavyzdiniai duomenys, kad puslapis nebūtų tuščias
 const [{ count }] = await sql`SELECT count(*)::int AS count FROM events`;

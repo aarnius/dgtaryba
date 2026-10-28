@@ -7,7 +7,7 @@ export default function PollCard({ poll }) {
   const showResults = poll.myOption != null || !poll.active;
 
   return (
-    <div className="card poll tape">
+    <div className="card poll">
       <div className="poll-head">
         <h3>{poll.question}</h3>
         {!poll.active && <span className="tag">Uždaryta</span>}

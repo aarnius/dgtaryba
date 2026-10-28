@@ -1,76 +1,94 @@
 import Link from "next/link";
 import { getVoter } from "@/lib/session";
-import { getIdeas, getPolls, getUpcomingEvents } from "@/lib/queries";
-import { formatDateTime, daysUntil } from "@/lib/format";
+import { getIdeas, getPolls, getUpcomingEvents, getStats } from "@/lib/queries";
+import { formatDateTime, countdownParts } from "@/lib/format";
 import PollCard from "@/components/PollCard";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const voter = await getVoter();
-  const [ideas, polls, events] = await Promise.all([
-    getIdeas(voter, { limit: 3 }),
+  const [ideas, polls, events, stats] = await Promise.all([
+    getIdeas(voter, { limit: 6 }),
     getPolls(voter, { activeOnly: true }),
     getUpcomingEvents(1),
+    getStats(),
   ]);
   const next = events[0];
   const poll = polls[0];
+  const cd = next && countdownParts(next.starts_at);
+  const topIdeas = ideas.filter((i) => i.status !== "done").slice(0, 4);
 
   return (
     <>
       <section className="hero">
         <img src="/koliazas.jpg" alt="Mokinių taryba" className="hero-photo" width={2546} height={1400} />
-        <p className="hero-text muted">
-          Siūlyk idėjas, balsuok, klausk drąsiai ir nepraleisk nė vieno renginio.
-        </p>
+
+        <div className="hero-side">
+          <div className="card timer">
+            <h3>Iki kito renginio</h3>
+            {next ? (
+              <>
+                <div className="digits">
+                  {cd.d}<small>d</small>{cd.h}<small>h</small>{cd.m}<small>m</small>
+                </div>
+                <div>
+                  <strong>{next.emoji} {next.title}</strong>
+                  <div className="muted small">{formatDateTime(next.starts_at)}</div>
+                </div>
+              </>
+            ) : (
+              <p className="muted" style={{ margin: 0 }}>Renginių kol kas nėra</p>
+            )}
+          </div>
+          <div className="stat-row">
+            <div className="card stat"><b>{stats.votes}</b><span>Balsų</span></div>
+            <div className="card stat"><b>{stats.done}</b><span>Įgyvendinta</span></div>
+          </div>
+        </div>
       </section>
 
-      <div className="tiles">
-        <Link href="/idejos" className="tile c1"><span className="emoji">💡</span><strong>Idėjos</strong><span>Pasiūlyk, kaip pagerinti mokyklą</span></Link>
-        <Link href="/apklausos" className="tile c2"><span className="emoji">📊</span><strong>Apklausos</strong><span>Nuspręsk kartu su visais</span></Link>
-        <Link href="/renginiai" className="tile c3"><span className="emoji">📅</span><strong>Renginiai</strong><span>Kas vyksta artimiausiu metu</span></Link>
-        <Link href="/klausimai" className="tile c4"><span className="emoji">💬</span><strong>Klausimai</strong><span>Klausk anonimiškai</span></Link>
-      </div>
+      <nav className="tiles" aria-label="Skiltys">
+        <Link href="/idejos" className="tile c1">
+          <span className="emoji">💡</span>Idėjos<span className="count">{stats.ideas}</span>
+        </Link>
+        <Link href="/apklausos" className="tile c2">
+          <span className="emoji">📊</span>Apklausos<span className="count">{stats.polls}</span>
+        </Link>
+        <Link href="/renginiai" className="tile c3">
+          <span className="emoji">📅</span>Renginiai<span className="count">{stats.events}</span>
+        </Link>
+        <Link href="/klausimai" className="tile c4">
+          <span className="emoji">💬</span>Klausimai<span className="count">{stats.answered}</span>
+        </Link>
+      </nav>
 
       <div className="home-grid">
         <section>
-          <h2>Kitas renginys</h2>
-          {next ? (
-            <div className="card tape tilt-l">
-              <div style={{ fontSize: "2.4rem" }}>{next.emoji}</div>
-              <h3>{next.title}</h3>
-              <p className="muted" style={{ margin: 0 }}>{formatDateTime(next.starts_at)}{next.location && ` · ${next.location}`}</p>
-              <p className="countdown" style={{ margin: "8px 0 0" }}>{daysUntil(next.starts_at)}</p>
-            </div>
-          ) : (
-            <div className="card empty"><span className="big">🗓️</span>Renginių kol kas nėra</div>
-          )}
-          <p><Link href="/renginiai" className="section-link">Visi renginiai →</Link></p>
-        </section>
-
-        <section>
           <h2>Populiariausios idėjos</h2>
-          <div className="card tape tilt-r">
-            {ideas.length === 0 ? (
+          <div className="card">
+            {topIdeas.length === 0 ? (
               <p className="muted" style={{ margin: 0 }}>Kol kas tuščia. Būk pirmas! 🚀</p>
             ) : (
-              ideas.map((idea, i) => (
-                <p key={idea.id} style={{ margin: "6px 0", display: "flex", gap: 8, alignItems: "flex-start" }}>
-                  <span className="medal">{["🥇", "🥈", "🥉"][i]}</span>
-                  <span style={{ flex: 1, fontWeight: 600 }}>{idea.title}</span>
-                  <span className="tag">♥ {idea.votes}</span>
-                </p>
-              ))
+              <ol className="rank">
+                {topIdeas.map((idea, i) => (
+                  <li key={idea.id}>
+                    <span className="n">{String(i + 1).padStart(2, "0")}</span>
+                    <span className="t">{idea.title}</span>
+                    <span className="v">♥ {idea.votes}</span>
+                  </li>
+                ))}
+              </ol>
             )}
           </div>
-          <p><Link href="/idejos" className="section-link">Siūlyti idėją →</Link></p>
+          <Link href="/idejos" className="section-link">Siūlyti idėją →</Link>
         </section>
 
         {poll && (
           <section>
             <h2>Balsuok dabar</h2>
             <PollCard poll={poll} />
-            <p><Link href="/apklausos" className="section-link">Visos apklausos →</Link></p>
+            <Link href="/apklausos" className="section-link">Visos apklausos →</Link>
           </section>
         )}
       </div>

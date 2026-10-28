@@ -21,11 +21,11 @@ function Feedback({ state }) {
 export function IdeaForm() {
   const [state, action] = useActionState(submitIdea, null);
   return (
-    <form action={action} className="card form tape tilt-r">
-      <h3>💡 Turi idėją?</h3>
-      <input name="title" placeholder="Pvz. Mikrobangė valgykloje" maxLength={120} required />
-      <textarea name="body" placeholder="Papasakok plačiau (nebūtina)" rows={3} maxLength={1000} />
-      <input name="author" placeholder="Vardas ir klasė (nebūtina)" maxLength={60} />
+    <form action={action} className="card form">
+      <h3>Nauja idėja</h3>
+      <label className="field"><span>Pavadinimas</span><input name="title" placeholder="Pvz. Mikrobangė valgykloje" maxLength={120} required /></label>
+      <label className="field"><span>Aprašymas</span><textarea name="body" placeholder="Papasakok plačiau (nebūtina)" rows={3} maxLength={1000} /></label>
+      <label className="field"><span>Autorius</span><input name="author" placeholder="Vardas ir klasė (nebūtina)" maxLength={60} /></label>
       <SubmitButton>Siųsti idėją</SubmitButton>
       <Feedback state={state} />
     </form>
@@ -35,10 +35,10 @@ export function IdeaForm() {
 export function QuestionForm() {
   const [state, action] = useActionState(askQuestion, null);
   return (
-    <form action={action} className="card form tape tilt-l">
-      <h3>🕵️ Klausk anonimiškai</h3>
-      <p className="muted small">Nesaugome nei vardo, nei el. pašto. Taryba atsakys viešai.</p>
-      <textarea name="body" placeholder="Kodėl…? Ar galima…? Kada…?" rows={4} maxLength={600} required />
+    <form action={action} className="card form">
+      <h3>Anoniminis klausimas</h3>
+      <p className="muted small" style={{ margin: 0 }}>Nesaugome nei vardo, nei el. pašto. Taryba atsakys viešai.</p>
+      <label className="field"><span>Klausimas</span><textarea name="body" placeholder="Kodėl…? Ar galima…? Kada…?" rows={4} maxLength={600} required /></label>
       <SubmitButton>Siųsti klausimą</SubmitButton>
       <Feedback state={state} />
     </form>
@@ -48,8 +48,8 @@ export function QuestionForm() {
 export function LoginForm() {
   const [state, action] = useActionState(login, null);
   return (
-    <form action={action} className="card form tape narrow">
-      <h3>🔐 Tarybos zona</h3>
+    <form action={action} className="card form narrow">
+      <h3>Tarybos zona</h3>
       <input name="password" type="password" placeholder="Slaptažodis" required autoFocus />
       <SubmitButton pendingText="Tikrinama…">Prisijungti</SubmitButton>
       <Feedback state={state} />

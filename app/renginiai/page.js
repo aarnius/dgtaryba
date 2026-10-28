@@ -19,8 +19,8 @@ export default async function EventsPage() {
         <div className="card empty"><span className="big">😴</span>Kol kas ramu. Netrukus kažkas bus!</div>
       ) : (
         <div className="events">
-          {events.map((e, i) => (
-            <article key={e.id} className={`card event ${i % 2 ? "tilt-r" : "tilt-l"}`}>
+          {events.map((e) => (
+            <article key={e.id} className="card event">
               <div className="date-chip">
                 <span className="m">{formatMonth(e.starts_at)}</span>
                 <span className="d">{formatDay(e.starts_at)}</span>

@@ -22,7 +22,7 @@ export default async function QuestionsPage() {
             <div className="card empty"><span className="big">🤫</span>Atsakytų klausimų dar nėra</div>
           )}
           {questions.map((q) => (
-            <article key={q.id} className={`card ${q.id % 2 ? "tilt-l" : "tilt-r"}`}>
+            <article key={q.id} className="card">
               <div className="bubble-q">❓ {q.body}</div>
               <div className="bubble-a">
                 <strong>Taryba atsako · {timeAgo(q.answered_at)}</strong>
