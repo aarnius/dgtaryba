@@ -9,7 +9,10 @@ Next.js + Neon (Postgres) + Vercel.
 | `/apklausos` | Apklausos (1 balsas iš naršyklės) |
 | `/renginiai` | Renginių kalendorius |
 | `/klausimai` | Anoniminiai klausimai ir tarybos atsakymai |
-| `/admin` | Tarybos pultas (slaptažodis) |
+| `/prisijungti` | Prisijungimas: Google arba el. paštas |
+| `/admin` | Tarybos pultas (pagal teises) |
+| `/admin/puslapis` | Puslapio redaktorius: mygtukai, skelbimai, tekstai |
+| `/admin/vartotojai` | Nariai ir jų teisės |
 
 ## 1. Neon duomenų bazė
 
@@ -17,7 +20,7 @@ Lentelės **susikuria pačios**, kai puslapis atidaromas pirmą kartą. Reikia t
 
 1. Neon → **Postgres database › Databases → New database** → pavadinimas `taryba`.
 2. **Connect** → Database: `taryba`, *Connection pooling* įjungtas → nukopijuok adresą (baigiasi `/taryba?sslmode=require...`).
-3. Vietiniam paleidimui nukopijuok `.env.example` į `.env.local` ir įrašyk `DATABASE_URL` bei `ADMIN_PASSWORD`:
+3. Vietiniam paleidimui nukopijuok `.env.example` į `.env.local` ir įrašyk `DATABASE_URL`, `NEON_AUTH_BASE_URL` ir `NEON_AUTH_COOKIE_SECRET`:
 
 ```bash
 npm install
@@ -33,7 +36,8 @@ Naujas lenteles ar stulpelius rašyk `lib/schema.mjs`.
 2. [vercel.com/new](https://vercel.com/new) → importuok repo.
 3. **Environment Variables** pridėk:
    - `DATABASE_URL`: tas pats Neon adresas
-   - `ADMIN_PASSWORD`: ilgas slaptažodis tarybai
+   - `NEON_AUTH_BASE_URL`: Neon → Auth → Auth URL
+   - `NEON_AUTH_COOKIE_SECRET`: atsitiktinė eilutė (32+ simboliai)
    - `NEXT_PUBLIC_SCHOOL_NAME`: pvz. `Mokinių taryba`
 4. **Deploy**.
 
@@ -58,3 +62,10 @@ Vėliau `dgtaryba.lt` pridedamas tame pačiame **Domains** lange.
 - Spalvos yra `app/globals.css` viršuje (`--mustard`, `--wine`, `--rose`…).
 - Iškarpų raidžių antraštės: `components/Ransom.js` (`<Ransom text="Bet koks tekstas" seed={5} />`, `seed` keičia raidžių išdėstymą).
 - Pagrindinio puslapio nuotrauka: `public/koliazas.jpg`. Pakeisk savo failu tuo pačiu pavadinimu.
+
+## Prisijungimas ir teisės
+
+- Prisijungiama per **Neon Auth**: su Google arba el. paštu ir slaptažodžiu. El. paštą reikia patvirtinti kodu.
+- **Savininkas** (`NEXT_PUBLIC_OWNER_EMAIL`, numatytai `arnas@dgg.lt`) visada turi visas teises.
+- Kitus narius savininkas prideda `/admin/vartotojai` ir pažymi teises: Idėjos, Klausimai, Apklausos, Renginiai, Puslapio redaktorius, Vartotojai.
+- Teisę „Vartotojai" gali duoti tik savininkas.

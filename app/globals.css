@@ -343,3 +343,39 @@ select { appearance: auto; }
   background: var(--mustard); color: #1d1606; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
 }
 .edit-fab:hover { filter: brightness(1.08); }
+
+/* ---------- Prisijungimas ---------- */
+.auth-card { gap: 14px; }
+.btn.google { display: inline-flex; align-items: center; justify-content: center; gap: 10px; background: #fff; color: #1f1f1f; }
+.or { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 0.8rem; }
+.or::before, .or::after { content: ""; flex: 1; height: 1px; background: var(--line-2); }
+.seg { display: grid; grid-template-columns: 1fr 1fr; padding: 3px; gap: 3px; border-radius: 8px; background: #17181b; border: 1px solid var(--line-2); }
+.seg button { font: inherit; font-weight: 600; font-size: 0.9rem; padding: 7px; border: 0; border-radius: 6px; cursor: pointer; background: transparent; color: var(--muted); }
+.seg button.on { background: var(--panel-2); color: var(--text); }
+.otp { font-size: 1.4rem; letter-spacing: 0.3em; text-align: center; }
+
+.who { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.who img { border-radius: 50%; }
+.who .small { color: #cfcac3; display: inline-flex; align-items: center; gap: 6px; }
+.tag.owner { background: rgba(242, 195, 61, 0.12); border-color: #6b5a24; color: var(--mustard); }
+
+/* ---------- Vartotojai ---------- */
+.members { display: flex; flex-direction: column; gap: 10px; }
+.member { display: flex; flex-direction: column; gap: 12px; }
+.member.owner { border-color: #6b5a24; }
+.member-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.member-head .info { min-width: 0; overflow-wrap: anywhere; }
+.perm-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font-size: 0.8rem; font-weight: 600; padding: 3px 10px; border-radius: 99px; border: 1px solid var(--line-2); color: var(--muted); }
+.chip.on { border-color: #6b5a24; color: var(--mustard); background: rgba(242, 195, 61, 0.08); }
+.perm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; }
+.perm {
+  display: flex; align-items: center; gap: 8px; padding: 7px 10px; cursor: pointer; font-size: 0.9rem; font-weight: 600;
+  border: 1px solid var(--line-2); border-radius: 6px; background: #17181b;
+}
+.perm:has(input:checked) { border-color: var(--mustard); background: rgba(242, 195, 61, 0.08); color: var(--mustard); }
+.perm.disabled { opacity: 0.45; cursor: not-allowed; }
+.perm input { width: auto; accent-color: var(--mustard); margin: 0; }
+.member-form { gap: 10px; }
+.ok-inline { color: #9ee088; font-size: 0.88rem; font-weight: 600; }
+.err-inline { color: #ff8a9f; font-size: 0.88rem; font-weight: 600; }

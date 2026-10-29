@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getVoter } from "@/lib/session";
 import { getIdeas, getPolls, getUpcomingEvents, getStats, getBlocks } from "@/lib/queries";
-import { isAdmin } from "@/lib/session";
+import { getCurrentUser, can } from "@/lib/session";
 import Blocks from "@/components/Blocks";
 import { formatDateTime, countdownParts } from "@/lib/format";
 import PollCard from "@/components/PollCard";
@@ -10,13 +10,13 @@ export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const voter = await getVoter();
-  const [ideas, polls, events, stats, blocks, admin] = await Promise.all([
+  const [ideas, polls, events, stats, blocks, user] = await Promise.all([
     getIdeas(voter, { limit: 6 }),
     getPolls(voter, { activeOnly: true }),
     getUpcomingEvents(1),
     getStats(),
     getBlocks(),
-    isAdmin(),
+    getCurrentUser(),
   ]);
   const next = events[0];
   const poll = polls[0];
@@ -101,7 +101,7 @@ export default async function Home() {
         )}
       </div>
 
-      {admin && <a href="/admin/puslapis" className="edit-fab">✏️ Redaguoti puslapį</a>}
+      {can(user, "page") && <a href="/admin/puslapis" className="edit-fab">✏️ Redaguoti puslapį</a>}
     </>
   );
 }

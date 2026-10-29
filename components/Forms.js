@@ -2,7 +2,8 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
-import { submitIdea, askQuestion, login, saveBlock } from "@/app/actions";
+import { submitIdea, askQuestion, saveBlock, saveMember } from "@/app/actions";
+import { PERMS } from "@/lib/perms";
 import { KINDS, PLACES, COLORS } from "@/lib/blocks";
 
 export function SubmitButton({ children, className = "btn", pendingText = "Siunčiama…", disabled = false, title }) {
@@ -26,7 +27,7 @@ export function ConfirmButton({ children, className = "btn", message = "Ar tikra
   );
 }
 
-function Feedback({ state }) {
+export function Feedback({ state }) {
   if (!state) return null;
   return <p className={state.ok ? "note ok" : "note err"}>{state.msg}</p>;
 }
@@ -53,18 +54,6 @@ export function QuestionForm() {
       <p className="muted small" style={{ margin: 0 }}>Nesaugome nei vardo, nei el. pašto. Taryba atsakys viešai.</p>
       <label className="field"><span>Klausimas</span><textarea name="body" placeholder="Kodėl…? Ar galima…? Kada…?" rows={4} maxLength={600} required /></label>
       <SubmitButton>Siųsti klausimą</SubmitButton>
-      <Feedback state={state} />
-    </form>
-  );
-}
-
-export function LoginForm() {
-  const [state, action] = useActionState(login, null);
-  return (
-    <form action={action} className="card form narrow">
-      <h3>Tarybos zona</h3>
-      <input name="password" type="password" placeholder="Slaptažodis" required autoFocus />
-      <SubmitButton pendingText="Tikrinama…">Prisijungti</SubmitButton>
       <Feedback state={state} />
     </form>
   );
@@ -154,6 +143,48 @@ export function BlockForm({ block }) {
         {block && <a href="/admin/puslapis" className="btn ghost">Atšaukti</a>}
       </div>
       <Feedback state={state} />
+    </form>
+  );
+}
+
+// Nario pridėjimas (be `member`) arba jo teisių keitimas (su `member`)
+export function MemberForm({ member, canGrantMembers }) {
+  const [state, action] = useActionState(saveMember, null);
+  const formRef = useRef(null);
+  useEffect(() => {
+    if (state?.ok && !member) formRef.current?.reset();
+  }, [state, member]);
+  const has = (p) => member?.perms?.includes(p);
+
+  return (
+    <form action={action} ref={formRef} className={member ? "form member-form" : "card form"}>
+      {!member && <h3>Pridėti narį</h3>}
+      {member ? (
+        <input type="hidden" name="email" value={member.email} />
+      ) : (
+        <>
+          <label className="field"><span>El. paštas</span><input name="email" type="email" required placeholder="vardas@dgg.lt" /></label>
+          <label className="field"><span>Vardas (nebūtina)</span><input name="name" maxLength={80} /></label>
+        </>
+      )}
+      <div className="field">
+        {!member && <span>Teisės</span>}
+        <div className="perm-grid">
+          {Object.entries(PERMS).map(([p, d]) => {
+            const disabled = p === "members" && !canGrantMembers;
+            return (
+              <label key={p} className={`perm ${disabled ? "disabled" : ""}`} title={disabled ? "Šią teisę gali duoti tik savininkas" : d.hint}>
+                <input type="checkbox" name="perm" value={p} defaultChecked={has(p)} disabled={disabled} />
+                <span>{d.label}</span>
+              </label>
+            );
+          })}
+        </div>
+      </div>
+      <div className="actions">
+        <SubmitButton className={member ? "btn small" : "btn"} pendingText="Saugoma…">{member ? "Išsaugoti" : "Pridėti"}</SubmitButton>
+        {state?.msg && <span className={state.ok ? "ok-inline" : "err-inline"}>{state.msg}</span>}
+      </div>
     </form>
   );
 }

@@ -1,10 +1,12 @@
 import Ransom from "@/components/Ransom";
 import AdminTabs from "@/components/AdminTabs";
-import { isAdmin } from "@/lib/session";
+import { can } from "@/lib/session";
+import { adminGate } from "@/components/AdminGate";
+import { redirect } from "next/navigation";
 import { sql } from "@/lib/db";
 import { getPolls, getUpcomingEvents } from "@/lib/queries";
 import { formatDateTime, timeAgo } from "@/lib/format";
-import { LoginForm, SubmitButton } from "@/components/Forms";
+import { SubmitButton } from "@/components/Forms";
 import {
   setIdeaStatus, deleteIdea, createPoll, togglePoll, deletePoll,
   createEvent, deleteEvent, answerQuestion, deleteQuestion,
@@ -24,25 +26,30 @@ function IdForm({ action, id, children, extra }) {
 }
 
 export default async function AdminPage() {
-  if (!(await isAdmin())) return <LoginForm />;
+  const { user, block } = await adminGate();
+  if (block) return block;
+  const ideasOk = can(user, "ideas"), qOk = can(user, "questions"), pollsOk = can(user, "polls"), eventsOk = can(user, "events");
+  if (!ideasOk && !qOk && !pollsOk && !eventsOk) redirect(can(user, "page") ? "/admin/puslapis" : "/admin/vartotojai");
 
+  const none = Promise.resolve([]);
   const [pendingIdeas, liveIdeas, questions, polls, events] = await Promise.all([
-    sql`SELECT * FROM ideas WHERE status = 'pending' ORDER BY created_at`,
-    sql`SELECT i.*, count(v.voter)::int AS votes FROM ideas i LEFT JOIN idea_votes v ON v.idea_id = i.id
-        WHERE status <> 'pending' GROUP BY i.id ORDER BY votes DESC`,
-    sql`SELECT * FROM questions WHERE answer IS NULL ORDER BY created_at`,
-    getPolls(null),
-    getUpcomingEvents(),
+    ideasOk ? sql`SELECT * FROM ideas WHERE status = 'pending' ORDER BY created_at` : none,
+    ideasOk ? sql`SELECT i.*, count(v.voter)::int AS votes FROM ideas i LEFT JOIN idea_votes v ON v.idea_id = i.id
+        WHERE status <> 'pending' GROUP BY i.id ORDER BY votes DESC` : none,
+    qOk ? sql`SELECT * FROM questions WHERE answer IS NULL ORDER BY created_at` : none,
+    pollsOk ? getPolls(null) : none,
+    eventsOk ? getUpcomingEvents() : none,
   ]);
 
   return (
     <>
       <div className="page-head">
         <Ransom text="Tarybos pultas" className="sm" seed={51} />
-        <AdminTabs active="pultas" />
+        <AdminTabs active="pultas" user={user} />
       </div>
 
       {/* ---- Idėjos laukia ---- */}
+      {ideasOk && (
       <section className="admin-section">
         <h2>💡 Laukia patvirtinimo <span className="tag pending">{pendingIdeas.length}</span></h2>
         <div className="card">
@@ -66,8 +73,10 @@ export default async function AdminPage() {
           ))}
         </div>
       </section>
+      )}
 
       {/* ---- Klausimai ---- */}
+      {qOk && (
       <section className="admin-section">
         <h2>💬 Neatsakyti klausimai <span className="tag pending">{questions.length}</span></h2>
         <div className="card">
@@ -90,8 +99,10 @@ export default async function AdminPage() {
           ))}
         </div>
       </section>
+      )}
 
       {/* ---- Apklausos ---- */}
+      {pollsOk && (
       <section className="admin-section">
         <h2>📊 Apklausos</h2>
         <div className="two-col">
@@ -127,8 +138,10 @@ export default async function AdminPage() {
           </form>
         </div>
       </section>
+      )}
 
       {/* ---- Renginiai ---- */}
+      {eventsOk && (
       <section className="admin-section">
         <h2>📅 Renginiai</h2>
         <div className="two-col">
@@ -159,8 +172,10 @@ export default async function AdminPage() {
           </form>
         </div>
       </section>
+      )}
 
       {/* ---- Rodomos idėjos ---- */}
+      {ideasOk && (
       <section className="admin-section">
         <h2>✨ Rodomos idėjos</h2>
         <div className="card">
@@ -189,6 +204,7 @@ export default async function AdminPage() {
           ))}
         </div>
       </section>
+      )}
     </>
   );
 }

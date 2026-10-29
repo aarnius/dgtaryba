@@ -1,8 +1,8 @@
 import Ransom from "@/components/Ransom";
 import Blocks from "@/components/Blocks";
-import { BlockForm, LoginForm } from "@/components/Forms";
+import { BlockForm } from "@/components/Forms";
+import { adminGate } from "@/components/AdminGate";
 import AdminTabs from "@/components/AdminTabs";
-import { isAdmin } from "@/lib/session";
 import { getBlocks } from "@/lib/queries";
 import { PLACES } from "@/lib/blocks";
 
@@ -10,7 +10,8 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Puslapio redaktorius", robots: { index: false } };
 
 export default async function PageEditor({ searchParams }) {
-  if (!(await isAdmin())) return <LoginForm />;
+  const { user, block } = await adminGate("page");
+  if (block) return block;
 
   const { edit } = await searchParams;
   const blocks = await getBlocks({ includeHidden: true });
@@ -21,7 +22,7 @@ export default async function PageEditor({ searchParams }) {
     <>
       <div className="page-head">
         <Ransom text="Puslapio redaktorius" className="sm" seed={61} />
-        <AdminTabs active="puslapis" />
+        <AdminTabs active="puslapis" user={user} />
       </div>
 
       <div className="two-col editor">

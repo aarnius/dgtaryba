@@ -3,15 +3,15 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { sql } from "@/lib/db";
-import { ensureVoter, isAdmin, checkPassword, setAdminCookie, clearAdminCookie } from "@/lib/session";
+import { ensureVoter, getCurrentUser, requirePerm } from "@/lib/session";
+import { getAuth } from "@/lib/auth/server";
+import { PERMS, OWNER_EMAIL } from "@/lib/perms";
 import { KINDS, PLACES, COLORS, cleanUrl } from "@/lib/blocks";
 
 const clean = (v, max) => String(v ?? "").trim().slice(0, max);
 const refresh = () => revalidatePath("/", "layout");
 
-async function requireAdmin() {
-  if (!(await isAdmin())) throw new Error("Neprisijungta");
-}
+
 
 /* ---------- Mokiniams ---------- */
 
@@ -59,20 +59,8 @@ export async function askQuestion(_prev, formData) {
 
 /* ---------- Admin ---------- */
 
-export async function login(_prev, formData) {
-  if (!process.env.ADMIN_PASSWORD) return { ok: false, msg: "Serveryje nenustatytas ADMIN_PASSWORD" };
-  if (!checkPassword(String(formData.get("password") ?? ""))) return { ok: false, msg: "Neteisingas slaptažodis" };
-  await setAdminCookie();
-  redirect("/admin");
-}
-
-export async function logout() {
-  await clearAdminCookie();
-  redirect("/admin");
-}
-
 export async function setIdeaStatus(formData) {
-  await requireAdmin();
+  await requirePerm("ideas");
   const id = Number(formData.get("id"));
   const status = String(formData.get("status"));
   if (!["pending", "approved", "done"].includes(status)) return;
@@ -81,13 +69,13 @@ export async function setIdeaStatus(formData) {
 }
 
 export async function deleteIdea(formData) {
-  await requireAdmin();
+  await requirePerm("ideas");
   await sql`DELETE FROM ideas WHERE id = ${Number(formData.get("id"))}`;
   refresh();
 }
 
 export async function createPoll(formData) {
-  await requireAdmin();
+  await requirePerm("polls");
   const question = clean(formData.get("question"), 200);
   const options = String(formData.get("options") ?? "")
     .split("\n").map((s) => s.trim().slice(0, 100)).filter(Boolean).slice(0, 8);
@@ -100,19 +88,19 @@ export async function createPoll(formData) {
 }
 
 export async function togglePoll(formData) {
-  await requireAdmin();
+  await requirePerm("polls");
   await sql`UPDATE polls SET active = NOT active WHERE id = ${Number(formData.get("id"))}`;
   refresh();
 }
 
 export async function deletePoll(formData) {
-  await requireAdmin();
+  await requirePerm("polls");
   await sql`DELETE FROM polls WHERE id = ${Number(formData.get("id"))}`;
   refresh();
 }
 
 export async function createEvent(formData) {
-  await requireAdmin();
+  await requirePerm("events");
   const title = clean(formData.get("title"), 120);
   const description = clean(formData.get("description"), 600);
   const location = clean(formData.get("location"), 80);
@@ -126,13 +114,13 @@ export async function createEvent(formData) {
 }
 
 export async function deleteEvent(formData) {
-  await requireAdmin();
+  await requirePerm("events");
   await sql`DELETE FROM events WHERE id = ${Number(formData.get("id"))}`;
   refresh();
 }
 
 export async function answerQuestion(formData) {
-  await requireAdmin();
+  await requirePerm("questions");
   const answer = clean(formData.get("answer"), 1500);
   if (!answer) return;
   await sql`UPDATE questions SET answer = ${answer}, answered_at = now() WHERE id = ${Number(formData.get("id"))}`;
@@ -140,7 +128,7 @@ export async function answerQuestion(formData) {
 }
 
 export async function deleteQuestion(formData) {
-  await requireAdmin();
+  await requirePerm("questions");
   await sql`DELETE FROM questions WHERE id = ${Number(formData.get("id"))}`;
   refresh();
 }
@@ -169,7 +157,7 @@ function readBlock(formData) {
 }
 
 export async function saveBlock(_prev, formData) {
-  await requireAdmin();
+  await requirePerm("page");
   const b = readBlock(formData);
   if (b.error) return { ok: false, msg: b.error };
   const id = Number(formData.get("id"));
@@ -192,7 +180,7 @@ export async function saveBlock(_prev, formData) {
 }
 
 export async function moveBlock(formData) {
-  await requireAdmin();
+  await requirePerm("page");
   const id = Number(formData.get("id"));
   const dir = formData.get("dir") === "up" ? "up" : "down";
   const [me] = await sql`SELECT id, place, position FROM blocks WHERE id = ${id}`;
@@ -209,13 +197,128 @@ export async function moveBlock(formData) {
 }
 
 export async function toggleBlock(formData) {
-  await requireAdmin();
+  await requirePerm("page");
   await sql`UPDATE blocks SET visible = NOT visible WHERE id = ${Number(formData.get("id"))}`;
   refresh();
 }
 
 export async function deleteBlock(formData) {
-  await requireAdmin();
+  await requirePerm("page");
   await sql`DELETE FROM blocks WHERE id = ${Number(formData.get("id"))}`;
+  refresh();
+}
+
+/* ---------- Prisijungimas (Neon Auth) ---------- */
+
+const AUTH_ERRORS = {
+  INVALID_EMAIL_OR_PASSWORD: "Neteisingas el. paštas arba slaptažodis",
+  USER_ALREADY_EXISTS: "Toks el. paštas jau užregistruotas. Prisijunk.",
+  USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL: "Toks el. paštas jau užregistruotas. Prisijunk.",
+  PASSWORD_TOO_SHORT: "Slaptažodis per trumpas (bent 8 simboliai)",
+  INVALID_EMAIL: "Neteisingas el. pašto adresas",
+  INVALID_OTP: "Neteisingas kodas",
+  OTP_EXPIRED: "Kodas nebegalioja. Paprašyk naujo.",
+  TOO_MANY_ATTEMPTS: "Per daug bandymų. Pabandyk po kelių minučių.",
+};
+
+function authError(error, fallback) {
+  if (!error) return null;
+  if (String(error.code ?? "").startsWith("NETWORK_")) return "Nepavyko pasiekti prisijungimo serverio. Bandyk vėliau.";
+  console.warn("[taryba] auth:", error.code, error.message);
+  return AUTH_ERRORS[error.code] || fallback;
+}
+
+const readEmail = (fd) => String(fd.get("email") ?? "").trim().toLowerCase().slice(0, 200);
+
+async function sendVerificationCode(email) {
+  const { error } = await getAuth().emailOtp.sendVerificationOtp({ email, type: "email-verification" });
+  return authError(error, "Nepavyko išsiųsti kodo");
+}
+
+export async function signInEmail(_prev, formData) {
+  const email = readEmail(formData);
+  const password = String(formData.get("password") ?? "");
+  if (!email || !password) return { ok: false, msg: "Įrašyk el. paštą ir slaptažodį" };
+  const { error } = await getAuth().signIn.email({ email, password });
+  const msg = authError(error, "Nepavyko prisijungti");
+  if (msg) return { ok: false, msg };
+  redirect("/admin");
+}
+
+export async function signUpEmail(_prev, formData) {
+  const email = readEmail(formData);
+  const password = String(formData.get("password") ?? "");
+  const name = clean(formData.get("name"), 80) || email.split("@")[0];
+  if (!email.includes("@")) return { ok: false, msg: "Neteisingas el. pašto adresas" };
+  if (password.length < 8) return { ok: false, msg: "Slaptažodis per trumpas (bent 8 simboliai)" };
+  const { error } = await getAuth().signUp.email({ email, password, name });
+  const msg = authError(error, "Nepavyko užsiregistruoti");
+  if (msg) return { ok: false, msg };
+  // Užsiregistravus: jei dar neprisijungė automatiškai, prijungiam
+  if (!(await getCurrentUser())) await getAuth().signIn.email({ email, password });
+  await sendVerificationCode(email);
+  redirect("/admin");
+}
+
+export async function resendCode() {
+  const user = await getCurrentUser();
+  if (!user || user.verified) return { ok: false, msg: "" };
+  const msg = await sendVerificationCode(user.email);
+  return msg ? { ok: false, msg } : { ok: true, msg: `Kodas išsiųstas į ${user.email} ✉️` };
+}
+
+export async function verifyCode(_prev, formData) {
+  const user = await getCurrentUser();
+  if (!user) redirect("/prisijungti");
+  const otp = String(formData.get("otp") ?? "").replace(/\s/g, "");
+  if (!/^\d{4,8}$/.test(otp)) return { ok: false, msg: "Įrašyk kodą iš laiško" };
+  const { error } = await getAuth().emailOtp.verifyEmail({ email: user.email, otp });
+  const msg = authError(error, "Neteisingas kodas");
+  if (msg) return { ok: false, msg };
+  revalidatePath("/", "layout");
+  redirect("/admin");
+}
+
+export async function signOut() {
+  try { await getAuth().signOut(); } catch {}
+  redirect("/");
+}
+
+/* ---------- Vartotojai ir teisės ---------- */
+
+function readPerms(formData, actor) {
+  return formData.getAll("perm").map(String)
+    .filter((p) => PERMS[p])
+    // Teisę valdyti vartotojus gali duoti tik savininkas
+    .filter((p) => p !== "members" || actor.isOwner);
+}
+
+export async function saveMember(_prev, formData) {
+  const actor = await requirePerm("members");
+  const email = readEmail(formData);
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return { ok: false, msg: "Neteisingas el. pašto adresas" };
+  if (email === OWNER_EMAIL) return { ok: false, msg: "Pagrindinė paskyra visada turi visas teises" };
+  const name = clean(formData.get("name"), 80) || null;
+  let perms = readPerms(formData, actor);
+  if (!actor.isOwner) {
+    // ne savininkas negali atimti „members“ teisės iš kito
+    const [old] = await sql`SELECT perms FROM members WHERE email = ${email}`;
+    if (old?.perms?.includes("members")) perms = [...new Set([...perms, "members"])];
+  }
+  await sql`INSERT INTO members (email, name, perms, added_by) VALUES (${email}, ${name}, ${perms}, ${actor.email})
+            ON CONFLICT (email) DO UPDATE SET perms = EXCLUDED.perms, name = coalesce(EXCLUDED.name, members.name)`;
+  refresh();
+  return { ok: true, msg: "Išsaugota ✓", at: Date.now() };
+}
+
+export async function removeMember(formData) {
+  const actor = await requirePerm("members");
+  const email = readEmail(formData);
+  if (email === OWNER_EMAIL) return;
+  if (!actor.isOwner) {
+    const [m] = await sql`SELECT perms FROM members WHERE email = ${email}`;
+    if (m?.perms?.includes("members")) return;
+  }
+  await sql`DELETE FROM members WHERE email = ${email}`;
   refresh();
 }
