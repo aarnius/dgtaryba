@@ -239,9 +239,11 @@ export async function signInEmail(_prev, formData) {
   const email = readEmail(formData);
   const password = String(formData.get("password") ?? "");
   if (!email || !password) return { ok: false, msg: "Įrašyk el. paštą ir slaptažodį" };
-  const { error } = await getAuth().signIn.email({ email, password });
+  const { data, error } = await getAuth().signIn.email({ email, password });
   const msg = authError(error, "Nepavyko prisijungti");
   if (msg) return { ok: false, msg };
+  // Dar nepatvirtintam el. paštui iškart siunčiam kodą
+  if (data?.user && !data.user.emailVerified) await sendVerificationCode(email);
   redirect("/admin");
 }
 

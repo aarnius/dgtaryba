@@ -1,7 +1,7 @@
 import { getAuth } from "@/lib/auth/server";
 
 // Atnaujina sesiją ir neprisijungusius iš /admin nukreipia į prisijungimą
-export default function middleware(req) {
+export default function proxy(req) {
   return getAuth().middleware({ loginUrl: "/prisijungti" })(req);
 }
 
