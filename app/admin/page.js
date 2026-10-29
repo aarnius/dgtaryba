@@ -1,11 +1,12 @@
 import Ransom from "@/components/Ransom";
+import AdminTabs from "@/components/AdminTabs";
 import { isAdmin } from "@/lib/session";
 import { sql } from "@/lib/db";
 import { getPolls, getUpcomingEvents } from "@/lib/queries";
 import { formatDateTime, timeAgo } from "@/lib/format";
 import { LoginForm, SubmitButton } from "@/components/Forms";
 import {
-  logout, setIdeaStatus, deleteIdea, createPoll, togglePoll, deletePoll,
+  setIdeaStatus, deleteIdea, createPoll, togglePoll, deletePoll,
   createEvent, deleteEvent, answerQuestion, deleteQuestion,
 } from "@/app/actions";
 
@@ -36,9 +37,9 @@ export default async function AdminPage() {
 
   return (
     <>
-      <div className="page-head" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+      <div className="page-head">
         <Ransom text="Tarybos pultas" className="sm" seed={51} />
-        <form action={logout}><button className="btn ghost small">Atsijungti</button></form>
+        <AdminTabs active="pultas" />
       </div>
 
       {/* ---- Idėjos laukia ---- */}

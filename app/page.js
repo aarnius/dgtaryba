@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { getVoter } from "@/lib/session";
-import { getIdeas, getPolls, getUpcomingEvents, getStats } from "@/lib/queries";
+import { getIdeas, getPolls, getUpcomingEvents, getStats, getBlocks } from "@/lib/queries";
+import { isAdmin } from "@/lib/session";
+import Blocks from "@/components/Blocks";
 import { formatDateTime, countdownParts } from "@/lib/format";
 import PollCard from "@/components/PollCard";
 
@@ -8,11 +10,13 @@ export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const voter = await getVoter();
-  const [ideas, polls, events, stats] = await Promise.all([
+  const [ideas, polls, events, stats, blocks, admin] = await Promise.all([
     getIdeas(voter, { limit: 6 }),
     getPolls(voter, { activeOnly: true }),
     getUpcomingEvents(1),
     getStats(),
+    getBlocks(),
+    isAdmin(),
   ]);
   const next = events[0];
   const poll = polls[0];
@@ -21,6 +25,8 @@ export default async function Home() {
 
   return (
     <>
+      <Blocks blocks={blocks.filter((b) => b.place === "top")} />
+
       <section className="hero">
         <img src="/koliazas.jpg" alt="Mokinių taryba" className="hero-photo" width={2546} height={1400} />
 
@@ -63,6 +69,8 @@ export default async function Home() {
         </Link>
       </nav>
 
+      <Blocks blocks={blocks.filter((b) => b.place === "bottom")} />
+
       <div className="home-grid">
         <section>
           <h2>Populiariausios idėjos</h2>
@@ -92,6 +100,8 @@ export default async function Home() {
           </section>
         )}
       </div>
+
+      {admin && <a href="/admin/puslapis" className="edit-fab">✏️ Redaguoti puslapį</a>}
     </>
   );
 }

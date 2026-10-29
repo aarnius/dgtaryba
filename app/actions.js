@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { sql } from "@/lib/db";
 import { ensureVoter, isAdmin, checkPassword, setAdminCookie, clearAdminCookie } from "@/lib/session";
+import { KINDS, PLACES, COLORS, cleanUrl } from "@/lib/blocks";
 
 const clean = (v, max) => String(v ?? "").trim().slice(0, max);
 const refresh = () => revalidatePath("/", "layout");
@@ -141,5 +142,80 @@ export async function answerQuestion(formData) {
 export async function deleteQuestion(formData) {
   await requireAdmin();
   await sql`DELETE FROM questions WHERE id = ${Number(formData.get("id"))}`;
+  refresh();
+}
+
+/* ---------- Puslapio redaktorius ---------- */
+
+
+function readBlock(formData) {
+  const kind = String(formData.get("kind") ?? "");
+  const def = KINDS[kind];
+  if (!def) return { error: "Pasirink bloko tipą" };
+  const place = PLACES[formData.get("place")] ? String(formData.get("place")) : "bottom";
+  const color = COLORS[formData.get("color")] ? String(formData.get("color")) : "mustard";
+  const has = (f) => def.fields.includes(f);
+  const title = has("title") ? clean(formData.get("title"), 200) : "";
+  const body = has("body") ? clean(formData.get("body"), 4000) : "";
+  const url = has("url") ? cleanUrl(formData.get("url")) : "";
+
+  if (url === null) return { error: "Nuoroda turi prasidėti https:// arba / (pvz. /renginiai)" };
+  if (kind === "button" && (!title || !url)) return { error: "Mygtukui reikia teksto ir nuorodos" };
+  if ((kind === "banner" || kind === "heading") && !title) return { error: "Įrašyk tekstą" };
+  if (kind === "text" && !body) return { error: "Įrašyk tekstą" };
+  if (kind === "image" && !url) return { error: "Įklijuok nuotraukos adresą" };
+
+  return { kind, place, color, title: title || null, body: body || null, url: url || null };
+}
+
+export async function saveBlock(_prev, formData) {
+  await requireAdmin();
+  const b = readBlock(formData);
+  if (b.error) return { ok: false, msg: b.error };
+  const id = Number(formData.get("id"));
+
+  if (Number.isInteger(id) && id > 0) {
+    await sql`UPDATE blocks SET kind = ${b.kind}, title = ${b.title}, body = ${b.body}, url = ${b.url}, color = ${b.color},
+              position = CASE WHEN place = ${b.place} THEN position
+                              ELSE (SELECT coalesce(max(position), 0) + 1 FROM blocks WHERE place = ${b.place}) END,
+              place = ${b.place}
+              WHERE id = ${id}`;
+    refresh();
+    redirect("/admin/puslapis");
+  }
+
+  await sql`INSERT INTO blocks (kind, place, title, body, url, color, position)
+            SELECT ${b.kind}, ${b.place}, ${b.title}, ${b.body}, ${b.url}, ${b.color},
+                   coalesce(max(position), 0) + 1 FROM blocks WHERE place = ${b.place}`;
+  refresh();
+  return { ok: true, msg: "Pridėta! ✨", at: Date.now() };
+}
+
+export async function moveBlock(formData) {
+  await requireAdmin();
+  const id = Number(formData.get("id"));
+  const dir = formData.get("dir") === "up" ? "up" : "down";
+  const [me] = await sql`SELECT id, place, position FROM blocks WHERE id = ${id}`;
+  if (!me) return;
+  const [other] = dir === "up"
+    ? await sql`SELECT id, position FROM blocks WHERE place = ${me.place} AND (position, id) < (${me.position}, ${me.id}) ORDER BY position DESC, id DESC LIMIT 1`
+    : await sql`SELECT id, position FROM blocks WHERE place = ${me.place} AND (position, id) > (${me.position}, ${me.id}) ORDER BY position, id LIMIT 1`;
+  if (!other) return;
+  // Jei pozicijos sutampa, sukuriam skirtumą, kad sukeitimas tikrai pakeistų tvarką
+  const a = other.position === me.position ? (dir === "up" ? me.position - 1 : me.position + 1) : other.position;
+  await sql`UPDATE blocks SET position = CASE WHEN id = ${me.id} THEN ${a} ELSE ${me.position} END
+            WHERE id IN (${me.id}, ${other.id})`;
+  refresh();
+}
+
+export async function toggleBlock(formData) {
+  await requireAdmin();
+  await sql`UPDATE blocks SET visible = NOT visible WHERE id = ${Number(formData.get("id"))}`;
+  refresh();
+}
+
+export async function deleteBlock(formData) {
+  await requireAdmin();
+  await sql`DELETE FROM blocks WHERE id = ${Number(formData.get("id"))}`;
   refresh();
 }
