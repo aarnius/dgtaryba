@@ -6,7 +6,7 @@ import { timeAgo } from "@/lib/format";
 import { IdeaForm } from "@/components/Forms";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Idėjos" };
+export const metadata = { title: "Idėjų dėžutė", description: "Siūlyk idėjas, kaip pagerinti Dariaus ir Girėno gimnaziją, ir balsuok už kitų mokinių idėjas.", alternates: { canonical: "/idejos" } };
 
 export default async function IdeasPage() {
   const ideas = await getIdeas(await getVoter());

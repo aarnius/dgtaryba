@@ -4,7 +4,7 @@ import { timeAgo } from "@/lib/format";
 import { QuestionForm } from "@/components/Forms";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Klausimai" };
+export const metadata = { title: "Klausimai tarybai", description: "Užduok anoniminį klausimą Dariaus ir Girėno gimnazijos mokinių tarybai ir skaityk atsakymus.", alternates: { canonical: "/klausimai" } };
 
 export default async function QuestionsPage() {
   const questions = await getAnsweredQuestions();

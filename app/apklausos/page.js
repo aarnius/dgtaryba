@@ -4,7 +4,7 @@ import { getPolls } from "@/lib/queries";
 import PollCard from "@/components/PollCard";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Apklausos" };
+export const metadata = { title: "Apklausos", description: "Dariaus ir Girėno gimnazijos mokinių tarybos apklausos: balsuok ir matyk rezultatus.", alternates: { canonical: "/apklausos" } };
 
 export default async function PollsPage() {
   const polls = await getPolls(await getVoter());

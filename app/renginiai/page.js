@@ -3,7 +3,7 @@ import { getUpcomingEvents } from "@/lib/queries";
 import { formatDay, formatMonth, formatDateTime, daysUntil } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Renginiai" };
+export const metadata = { title: "Renginiai", description: "Artėjantys Dariaus ir Girėno gimnazijos renginiai: diskotekos, šou, akcijos ir kt.", alternates: { canonical: "/renginiai" } };
 
 export default async function EventsPage() {
   const events = await getUpcomingEvents();

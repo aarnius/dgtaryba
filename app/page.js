@@ -5,8 +5,27 @@ import { getCurrentUser, can } from "@/lib/session";
 import Blocks from "@/components/Blocks";
 import { formatDateTime, countdownParts } from "@/lib/format";
 import PollCard from "@/components/PollCard";
+import { SITE_URL, SITE_NAME, SCHOOL, SITE_DESCRIPTION } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${SITE_URL}/#taryba`,
+      name: SITE_NAME,
+      alternateName: ["DG mokinių taryba", "Dariaus ir Girėno gimnazijos mokinių taryba", "dgtaryba"],
+      description: SITE_DESCRIPTION,
+      url: SITE_URL,
+      logo: `${SITE_URL}/icon.svg`,
+      image: `${SITE_URL}/koliazas.jpg`,
+      parentOrganization: { "@type": "HighSchool", name: SCHOOL, address: { "@type": "PostalAddress", addressLocality: "Kaunas", addressCountry: "LT" } },
+    },
+    { "@type": "WebSite", "@id": `${SITE_URL}/#site`, url: SITE_URL, name: SITE_NAME, inLanguage: "lt", publisher: { "@id": `${SITE_URL}/#taryba` } },
+  ],
+};
 
 export default async function Home() {
   const voter = await getVoter();
@@ -27,8 +46,18 @@ export default async function Home() {
     <>
       <Blocks blocks={blocks.filter((b) => b.place === "top")} />
 
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
+      />
+
+      <header className="home-title">
+        <h1>{SCHOOL} <span>mokinių taryba</span></h1>
+        <p className="muted">Siūlyk idėjas, balsuok apklausose, sek renginius ir klausk tarybos anonimiškai.</p>
+      </header>
+
       <section className="hero">
-        <img src="/koliazas.jpg" alt="Mokinių taryba" className="hero-photo" width={2546} height={1400} />
+        <img src="/koliazas.jpg" alt="Dariaus ir Girėno gimnazijos mokinių taryba: renginiai ir susitikimai" className="hero-photo" width={2546} height={1400} />
 
         <div className="hero-side">
           <div className="card timer">
