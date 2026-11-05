@@ -29,7 +29,7 @@ export default async function AdminPage() {
   const { user, block } = await adminGate();
   if (block) return block;
   const ideasOk = can(user, "ideas"), qOk = can(user, "questions"), pollsOk = can(user, "polls"), eventsOk = can(user, "events");
-  if (!ideasOk && !qOk && !pollsOk && !eventsOk) redirect(can(user, "page") ? "/admin/puslapis" : "/admin/vartotojai");
+  if (!ideasOk && !qOk && !pollsOk && !eventsOk) redirect(can(user, "page") ? "/admin/puslapis" : can(user, "council") ? "/admin/taryba" : "/admin/vartotojai");
 
   const none = Promise.resolve([]);
   const [pendingIdeas, liveIdeas, questions, polls, events] = await Promise.all([
@@ -134,6 +134,7 @@ export default async function AdminPage() {
             <h3>Nauja apklausa</h3>
             <input name="question" placeholder="Klausimas" required maxLength={200} />
             <textarea name="options" rows={4} placeholder={"Variantai, po vieną eilutėje\nPvz. Taip\nNe"} required />
+            <label className="check"><input type="checkbox" name="notify" value="1" defaultChecked /> 🔔 Pranešti prenumeratoriams</label>
             <SubmitButton>Sukurti</SubmitButton>
           </form>
         </div>
@@ -168,6 +169,7 @@ export default async function AdminPage() {
             <input name="starts_at" type="datetime-local" required />
             <input name="location" placeholder="Vieta (nebūtina)" maxLength={80} />
             <textarea name="description" rows={2} placeholder="Aprašymas (nebūtina)" maxLength={600} />
+            <label className="check"><input type="checkbox" name="notify" value="1" defaultChecked /> 🔔 Pranešti prenumeratoriams</label>
             <SubmitButton>Pridėti</SubmitButton>
           </form>
         </div>

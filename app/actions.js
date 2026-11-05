@@ -1,6 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
+import { notifyAll } from "@/lib/push";
 import { redirect } from "next/navigation";
 import { sql } from "@/lib/db";
 import { ensureVoter, getCurrentUser, requirePerm } from "@/lib/session";
@@ -84,6 +86,7 @@ export async function createPoll(formData) {
   for (const label of options) {
     await sql`INSERT INTO poll_options (poll_id, label) VALUES (${poll.id}, ${label})`;
   }
+  if (formData.get("notify")) after(() => notifyAll({ title: "📊 Nauja apklausa", body: question, url: "/apklausos" }));
   refresh();
 }
 
@@ -110,6 +113,7 @@ export async function createEvent(formData) {
   await sql`INSERT INTO events (title, description, location, emoji, starts_at)
             VALUES (${title}, ${description}, ${location}, ${emoji},
                     (${startsAt}::timestamp AT TIME ZONE 'Europe/Vilnius'))`;
+  if (formData.get("notify")) after(() => notifyAll({ title: `${emoji} ${title}`, body: location ? `Naujas renginys · ${location}` : "Naujas renginys", url: "/renginiai" }));
   refresh();
 }
 

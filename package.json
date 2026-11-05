@@ -11,8 +11,10 @@
   "dependencies": {
     "@neondatabase/auth": "0.7.0-beta",
     "@neondatabase/serverless": "^1.0.0",
+    "@vercel/blob": "latest",
     "next": "^16.0.0",
     "react": "^19.2.1",
-    "react-dom": "^19.2.1"
+    "react-dom": "^19.2.1",
+    "web-push": "^3.6.7"
   }
 }

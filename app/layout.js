@@ -1,5 +1,6 @@
 import "./globals.css";
 import Nav from "@/components/Nav";
+import SwRegister from "@/components/SwRegister";
 
 import { SITE_URL, SITE_NAME, SITE_SHORT, SITE_DESCRIPTION } from "@/lib/site";
 
@@ -21,8 +22,11 @@ export const metadata = {
   },
   twitter: { card: "summary_large_image", title: SITE_NAME, description: SITE_DESCRIPTION, images: ["/koliazas.jpg"] },
   robots: { index: true, follow: true },
+  appleWebApp: { capable: true, title: "DG taryba", statusBarStyle: "black-translucent" },
   ...(process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION && { verification: { google: process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION } }),
 };
+
+export const viewport = { themeColor: "#140e18", colorScheme: "dark" };
 
 export default function RootLayout({ children }) {
   return (
@@ -36,10 +40,11 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body>
+        <SwRegister />
         <Nav schoolName={schoolName} />
         <main className="wrap">{children}</main>
         <footer className="footer">
-          Sukurta mokinių, mokiniams 💛 · <a href="/admin">Tarybai</a>
+          Sukurta mokinių, mokiniams 💛 · <a href="/renginiai.ics">Kalendorius</a> · <a href="/admin">Tarybai</a>
         </footer>
       </body>
     </html>

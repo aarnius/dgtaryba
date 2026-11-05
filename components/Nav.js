@@ -9,6 +9,8 @@ const LINKS = [
   { href: "/apklausos", label: "Apklausos", emoji: "📊" },
   { href: "/renginiai", label: "Renginiai", emoji: "📅" },
   { href: "/klausimai", label: "Klausimai", emoji: "💬" },
+  { href: "/galerija", label: "Galerija", emoji: "📸" },
+  { href: "/taryba", label: "Taryba", emoji: "🏛️" },
 ];
 
 export default function Nav({ schoolName }) {

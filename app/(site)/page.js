@@ -3,6 +3,10 @@ import { getVoter } from "@/lib/session";
 import { getIdeas, getPolls, getUpcomingEvents, getStats, getBlocks } from "@/lib/queries";
 import { getCurrentUser, can } from "@/lib/session";
 import Blocks from "@/components/Blocks";
+import BellWidget from "@/components/BellWidget";
+import VideoEmbed from "@/components/VideoEmbed";
+import PushButton from "@/components/PushButton";
+import { getBells, getVideos } from "@/lib/content";
 import { formatDateTime, countdownParts } from "@/lib/format";
 import PollCard from "@/components/PollCard";
 import { SITE_URL, SITE_NAME, SCHOOL, SITE_DESCRIPTION } from "@/lib/site";
@@ -19,7 +23,7 @@ const jsonLd = {
       alternateName: ["DG mokinių taryba", "Dariaus ir Girėno gimnazijos mokinių taryba", "dgtaryba"],
       description: SITE_DESCRIPTION,
       url: SITE_URL,
-      logo: `${SITE_URL}/icon.svg`,
+      logo: `${SITE_URL}/icon-512.png`,
       image: `${SITE_URL}/koliazas.jpg`,
       parentOrganization: { "@type": "HighSchool", name: SCHOOL, address: { "@type": "PostalAddress", addressLocality: "Kaunas", addressCountry: "LT" } },
     },
@@ -29,13 +33,15 @@ const jsonLd = {
 
 export default async function Home() {
   const voter = await getVoter();
-  const [ideas, polls, events, stats, blocks, user] = await Promise.all([
+  const [ideas, polls, events, stats, blocks, user, bells, videos] = await Promise.all([
     getIdeas(voter, { limit: 6 }),
     getPolls(voter, { activeOnly: true }),
     getUpcomingEvents(1),
     getStats(),
     getBlocks(),
     getCurrentUser(),
+    getBells(),
+    getVideos(3),
   ]);
   const next = events[0];
   const poll = polls[0];
@@ -54,12 +60,14 @@ export default async function Home() {
       <header className="home-title">
         <h1>{SCHOOL} <span>mokinių taryba</span></h1>
         <p className="muted">Siūlyk idėjas, balsuok apklausose, sek renginius ir klausk tarybos anonimiškai.</p>
+        <div style={{ marginTop: 10 }}><PushButton /></div>
       </header>
 
       <section className="hero">
         <img src="/koliazas.jpg" alt="Dariaus ir Girėno gimnazijos mokinių taryba: renginiai ir susitikimai" className="hero-photo" width={2546} height={1400} />
 
         <div className="hero-side">
+          <BellWidget bells={bells} />
           <div className="card timer">
             <h3>Iki kito renginio</h3>
             {next ? (
@@ -99,6 +107,16 @@ export default async function Home() {
       </nav>
 
       <Blocks blocks={blocks.filter((b) => b.place === "bottom")} />
+
+      {videos.length > 0 && (
+        <section className="section">
+          <div className="section-head">
+            <h2>Naujausi video</h2>
+            <a href="/galerija" className="section-link">Visa galerija →</a>
+          </div>
+          <div className="video-row">{videos.map((v) => <VideoEmbed key={v.id} v={v} />)}</div>
+        </section>
+      )}
 
       <div className="home-grid">
         <section>
