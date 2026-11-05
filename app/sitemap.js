@@ -10,5 +10,6 @@ export default function sitemap() {
     { path: "/klausimai", priority: 0.6, changeFrequency: "weekly" },
     { path: "/taryba", priority: 0.8, changeFrequency: "monthly" },
     { path: "/galerija", priority: 0.7, changeFrequency: "weekly" },
+    { path: "/privatumas", priority: 0.2, changeFrequency: "yearly" },
   ].map(({ path, ...rest }) => ({ url: `${SITE_URL}${path}`, lastModified: now, ...rest }));
 }

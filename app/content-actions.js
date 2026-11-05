@@ -25,6 +25,7 @@ export async function saveCouncilMember(_prev, fd) {
     const id = idOf(fd);
     const name = clean(fd.get("name"), 80);
     if (!name) return { ok: false, msg: "Įrašyk vardą" };
+    if (fd.get("consent") !== "1") return { ok: false, msg: "Pažymėk, kad narys sutiko su duomenų skelbimu" };
     const role = clean(fd.get("role"), 80) || null;
     const className = clean(fd.get("class_name"), 20) || null;
     const bio = clean(fd.get("bio"), 600) || null;

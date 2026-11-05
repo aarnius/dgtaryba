@@ -9,7 +9,7 @@ import PushButton from "@/components/PushButton";
 import { getBells, getVideos } from "@/lib/content";
 import { formatDateTime, countdownParts } from "@/lib/format";
 import PollCard from "@/components/PollCard";
-import { SITE_URL, SITE_NAME, SCHOOL, SITE_DESCRIPTION } from "@/lib/site";
+import { SITE_URL, SITE_NAME, SCHOOL, SCHOOL_GEN, SITE_DESCRIPTION } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
 
@@ -58,7 +58,7 @@ export default async function Home() {
       />
 
       <header className="home-title">
-        <h1>{SCHOOL} <span>mokinių taryba</span></h1>
+        <h1>{SCHOOL_GEN} <span>mokinių taryba</span></h1>
         <p className="muted">Siūlyk idėjas, balsuok apklausose, sek renginius ir klausk tarybos anonimiškai.</p>
         <div style={{ marginTop: 10 }}><PushButton /></div>
       </header>

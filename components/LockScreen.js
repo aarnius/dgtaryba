@@ -11,7 +11,7 @@ export default function LockScreen({ title, message, eta, hasPassword }) {
         {eta && <p className="lock-eta">⏱️ {eta}</p>}
         <p className="muted small">Kauno Stepono Dariaus ir Stasio Girėno gimnazijos mokinių taryba</p>
         {hasPassword && <UnlockForm />}
-        <a href="/prisijungti" className="lock-admin">Tarybai →</a>
+        <div className="footer-links"><a href="/privatumas" className="lock-admin">Privatumo politika</a><a href="/prisijungti" className="lock-admin">Tarybai →</a></div>
       </div>
     </div>
   );

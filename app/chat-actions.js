@@ -23,6 +23,12 @@ export async function chatMarkRead() {
   if (voter) await sql`UPDATE chat_threads SET unread_user = 0 WHERE voter = ${voter}`;
 }
 
+export async function chatDeleteMine() {
+  const voter = await getVoter();
+  if (voter) await sql`DELETE FROM chat_threads WHERE voter = ${voter}`;
+  return { ok: true };
+}
+
 export async function chatSend(body, name) {
   const text = clean(body, 1000);
   if (!text) return { ok: false, msg: "Tuščia žinutė" };
@@ -49,6 +55,8 @@ export async function chatSend(body, name) {
 
 export async function adminThreads() {
   await requirePerm("questions");
+  // Saugojimo terminas: pokalbiai ištrinami po 12 mėn. nuo paskutinės žinutės (žr. /privatumas)
+  await sql`DELETE FROM chat_threads WHERE last_at < now() - interval '12 months'`;
   return sql`
     SELECT t.id, t.name, t.status, t.unread_admin, t.last_at,
            (SELECT body FROM chat_messages WHERE thread_id = t.id ORDER BY id DESC LIMIT 1) AS last_body

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { chatPoll, chatSend, chatMarkRead } from "@/app/chat-actions";
+import { chatPoll, chatSend, chatMarkRead, chatDeleteMine } from "@/app/chat-actions";
 
 const time = (d) => new Date(d).toLocaleTimeString("lt-LT", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Vilnius" });
 
@@ -85,6 +85,12 @@ export default function ChatWidget() {
           <div className="chat-head">
             <strong>Rašyk tarybai</strong>
             <span className="muted small">Atsakysime kuo greičiau. Gali rašyti anonimiškai.</span>
+            {msgs.length > 0 && (
+              <button type="button" className="chat-delete" onClick={async () => {
+                if (!confirm("Ištrinti visą pokalbį? To atšaukti nebus galima.")) return;
+                await chatDeleteMine(); lastId.current = 0; setMsgs([]); setHasThread(false);
+              }}>Ištrinti pokalbį</button>
+            )}
           </div>
           <div className="chat-list" ref={listRef}>
             {msgs.length === 0 && (
@@ -113,6 +119,7 @@ export default function ChatWidget() {
               <button type="submit" className="btn" disabled={sending || !text.trim()} aria-label="Siųsti">➤</button>
             </div>
             {err && <p className="note err">{err}</p>}
+            <p className="form-note">Žinutes mato tik taryba. Nerašyk asmeninių duomenų apie kitus. <a href="/privatumas" target="_blank">Privatumas</a></p>
           </form>
         </div>
       )}

@@ -40,6 +40,7 @@ export function IdeaForm() {
       <label className="field"><span>Pavadinimas</span><input name="title" placeholder="Pvz. Mikrobangė valgykloje" maxLength={120} required /></label>
       <label className="field"><span>Aprašymas</span><textarea name="body" placeholder="Papasakok plačiau (nebūtina)" rows={3} maxLength={1000} /></label>
       <label className="field"><span>Autorius</span><input name="author" placeholder="Vardas ir klasė (nebūtina)" maxLength={60} /></label>
+      <p className="form-note">Vardas bus matomas viešai. Gali palikti tuščią. <a href="/privatumas">Privatumas</a></p>
       <SubmitButton>Siųsti idėją</SubmitButton>
       <Feedback state={state} />
     </form>
@@ -51,7 +52,7 @@ export function QuestionForm() {
   return (
     <form action={action} className="card form">
       <h3>Anoniminis klausimas</h3>
-      <p className="muted small" style={{ margin: 0 }}>Nesaugome nei vardo, nei el. pašto. Taryba atsakys viešai.</p>
+      <p className="muted small" style={{ margin: 0 }}>Nesaugome nei vardo, nei el. pašto. Taryba atsakys viešai, todėl nerašyk asmeninių duomenų apie save ar kitus.</p>
       <label className="field"><span>Klausimas</span><textarea name="body" placeholder="Kodėl…? Ar galima…? Kada…?" rows={4} maxLength={600} required /></label>
       <SubmitButton>Siųsti klausimą</SubmitButton>
       <Feedback state={state} />

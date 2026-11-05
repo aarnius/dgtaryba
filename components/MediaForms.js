@@ -95,6 +95,7 @@ export function PhotoUploader({ albumId }) {
         <span className="big">📸</span>
         <strong>{busy ? `Įkeliama ${state.done} / ${state.total}…` : "Pasirink nuotraukas"}</strong>
         <span className="muted small">Gali pasirinkti kelias iš karto. Jos bus sumažintos automatiškai.</span>
+        <span className="muted small">⚠️ Kelk tik tas nuotraukas, kuriose esantys mokiniai (ar jų tėvai) sutiko su viešinimu pagal gimnazijos tvarką.</span>
         {busy && <span className="bell-bar"><span style={{ width: `${(state.done / state.total) * 100}%` }} /></span>}
       </label>
       {state && !busy && !state.errors.length && <p className="note ok">Įkelta {state.total} nuotr. ✓</p>}

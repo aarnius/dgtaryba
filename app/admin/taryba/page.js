@@ -32,6 +32,7 @@ function MemberFields({ m }) {
       </div>
       <label className="field"><span>Apie (nebūtina)</span><textarea name="bio" rows={2} maxLength={600} defaultValue={m?.bio ?? ""} /></label>
       <label className="field"><span>Kontaktas (nebūtina)</span><input name="contact" maxLength={120} placeholder="@instagram arba el. paštas" defaultValue={m?.contact ?? ""} /></label>
+      <label className="check"><input type="checkbox" name="consent" value="1" required defaultChecked={Boolean(m)} /> Narys sutiko, kad šie duomenys ir nuotrauka būtų skelbiami viešai (jaunesniems nei 14 m. sutinka tėvai)</label>
     </>
   );
 }

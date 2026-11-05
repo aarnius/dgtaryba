@@ -1,6 +1,8 @@
 import "./globals.css";
 import Nav from "@/components/Nav";
 import SwRegister from "@/components/SwRegister";
+import { fontVars } from "@/lib/fonts";
+import { SCHOOL, SCHOOL_GEN, CONTACT_EMAIL } from "@/lib/site";
 
 import { SITE_URL, SITE_NAME, SITE_SHORT, SITE_DESCRIPTION } from "@/lib/site";
 
@@ -30,21 +32,21 @@ export const viewport = { themeColor: "#140e18", colorScheme: "dark" };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="lt">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Figtree:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&family=Playfair+Display:ital,wght@0,700;0,800;1,700;1,800&family=Rubik:wght@800&family=Shrikhand&display=swap"
-        />
-      </head>
+    <html lang="lt" className={fontVars}>
       <body>
+        <a href="#turinys" className="skip-link">Pereiti prie turinio</a>
         <SwRegister />
         <Nav schoolName={schoolName} />
-        <main className="wrap">{children}</main>
+        <main className="wrap" id="turinys">{children}</main>
         <footer className="footer">
-          Sukurta mokinių, mokiniams 💛 · <a href="/renginiai.ics">Kalendorius</a> · <a href="/admin">Tarybai</a>
+          <div>Sukurta mokinių, mokiniams 💛 · {SCHOOL_GEN} mokinių taryba · Miško g. 1, Kaunas</div>
+          <nav className="footer-links" aria-label="Teisinė informacija">
+            <a href="/privatumas">Privatumo politika</a>
+            <a href="/privatumas#slapukai">Slapukai</a>
+            <a href={`mailto:${CONTACT_EMAIL}`}>Kontaktai</a>
+            <a href="/renginiai.ics">Kalendorius</a>
+            <a href="/admin">Tarybai</a>
+          </nav>
         </footer>
       </body>
     </html>
