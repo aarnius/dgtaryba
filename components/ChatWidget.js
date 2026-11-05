@@ -27,13 +27,29 @@ export default function ChatWidget() {
     } catch {}
   }, []);
 
-  // Atidarius: dažniau; uždarius: retai, tik dėl naujų atsakymų ženkliuko
+  // Atidarius: kas 4 s. Uždarius: tik jei jau rašė tarybai, kas 60 s (dėl atsakymo ženkliuko).
+  // Taip duomenų bazė gali „užmigti“ ir nenaudoja nemokamo limito be reikalo.
+  const [hasThread, setHasThread] = useState(false);
   useEffect(() => {
-    poll();
-    const every = open ? 3500 : 25000;
-    const t = setInterval(() => { if (document.visibilityState === "visible") poll(); }, every);
+    let stop = false;
+    (async () => {
+      const { thread } = await chatPoll(0).catch(() => ({}));
+      if (!stop && thread) setHasThread(true);
+    })();
+    return () => { stop = true; };
+  }, []);
+  useEffect(() => {
+    if (!open && !hasThread) return;
+    if (open) poll();
+    const every = open ? 4000 : 60000;
+    let idle = 0;
+    const t = setInterval(() => {
+      if (document.visibilityState !== "visible") return;
+      if (!open && ++idle > 20) return clearInterval(t); // po ~20 min neveiklumo nustojam
+      poll();
+    }, every);
     return () => clearInterval(t);
-  }, [open, poll]);
+  }, [open, hasThread, poll]);
 
   useEffect(() => {
     if (open && unread) { chatMarkRead(); setUnread(0); }
@@ -53,6 +69,7 @@ export default function ChatWidget() {
     setSending(false);
     if (!res.ok) return setErr(res.msg);
     setText("");
+    setHasThread(true);
     poll();
   }
 
