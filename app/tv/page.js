@@ -6,17 +6,25 @@ import { getIdeas, getPolls, getUpcomingEvents } from "@/lib/queries";
 import { sql } from "@/lib/db";
 import { SITE_URL } from "@/lib/site";
 
-// Kešuojama 5 min.: kiek televizorių bebūtų, duomenų bazė užklausiama retai.
-// Pakeitimai redaktoriuje atnaujina ekraną iškart (revalidatePath).
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
+
+// Duomenys laikomi atmintyje 2 min.: kiek televizorių bebūtų, duomenų bazė užklausiama retai
+// (taip ji gali „užmigti“ ir nenaudoja nemokamo limito be reikalo)
+let cache = { at: 0, data: null };
+async function load() {
+  if (cache.data && Date.now() - cache.at < 120_000) return cache.data;
+  const [tv, bells, events, ideas, polls, photos, banners] = await Promise.all([
+    getTv(), getBells(), getUpcomingEvents(5), getIdeas(null, { limit: 8 }), getPolls(null, { activeOnly: true }),
+    sql`SELECT url FROM photos ORDER BY id DESC LIMIT 9`,
+    sql`SELECT title FROM blocks WHERE kind = 'banner' AND visible ORDER BY place, position`,
+  ]);
+  cache = { at: Date.now(), data: { tv, bells, events, ideas, polls, photos, banners } };
+  return cache.data;
+}
 export const metadata = { title: "TV ekranas", robots: { index: false } };
 
 export default async function TvPage() {
-  const [tv, bells, events, ideas, polls, photos] = await Promise.all([
-    getTv(), getBells(), getUpcomingEvents(5), getIdeas(null, { limit: 8 }), getPolls(null, { activeOnly: true }),
-    sql`SELECT url FROM photos ORDER BY id DESC LIMIT 9`,
-  ]);
-  const banners = await sql`SELECT title FROM blocks WHERE kind = 'banner' AND visible ORDER BY place, position`;
+  const { tv, bells, events, ideas, polls, photos, banners } = await load();
   const qr = await QRCode.toString(SITE_URL, { type: "svg", margin: 0, errorCorrectionLevel: "M", color: { dark: "#140e18", light: "#00000000" } });
 
   return (
