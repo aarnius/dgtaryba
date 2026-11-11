@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { sql } from "@/lib/db";
 import { getPolls, getUpcomingEvents } from "@/lib/queries";
 import { formatEventWhen, timeAgo } from "@/lib/format";
-import { SubmitButton } from "@/components/Forms";
+import { SubmitButton, ConfirmButton } from "@/components/Forms";
 import {
   setIdeaStatus, deleteIdea, createPoll, togglePoll, deletePoll,
   createEvent, deleteEvent, answerQuestion, deleteQuestion,
@@ -32,13 +32,14 @@ export default async function AdminPage() {
   if (!ideasOk && !qOk && !pollsOk && !eventsOk) redirect(can(user, "page") ? "/admin/puslapis" : can(user, "tv") ? "/admin/tv" : can(user, "council") ? "/admin/taryba" : "/admin/vartotojai");
 
   const none = Promise.resolve([]);
-  const [pendingIdeas, liveIdeas, questions, polls, events] = await Promise.all([
+  const [pendingIdeas, liveIdeas, questions, polls, events, answered] = await Promise.all([
     ideasOk ? sql`SELECT * FROM ideas WHERE status = 'pending' ORDER BY created_at` : none,
     ideasOk ? sql`SELECT i.*, count(v.voter)::int AS votes FROM ideas i LEFT JOIN idea_votes v ON v.idea_id = i.id
         WHERE status <> 'pending' GROUP BY i.id ORDER BY votes DESC` : none,
     qOk ? sql`SELECT * FROM questions WHERE answer IS NULL ORDER BY created_at` : none,
     pollsOk ? getPolls(null) : none,
     eventsOk ? getUpcomingEvents() : none,
+    qOk ? sql`SELECT * FROM questions WHERE answer IS NOT NULL ORDER BY answered_at DESC NULLS LAST, id DESC` : none,
   ]);
 
   return (
@@ -94,6 +95,27 @@ export default async function AdminPage() {
               </div>
               <IdForm action={deleteQuestion} id={q.id}>
                 <SubmitButton className="btn danger small" pendingText="…">Ištrinti</SubmitButton>
+              </IdForm>
+            </div>
+          ))}
+        </div>
+      </section>
+      )}
+
+      {/* ---- Atsakyti klausimai ---- */}
+      {qOk && answered.length > 0 && (
+      <section className="admin-section">
+        <h2>✅ Atsakyti klausimai <span className="tag done">{answered.length}</span></h2>
+        <div className="card">
+          {answered.map((q) => (
+            <div key={q.id} className="admin-row">
+              <div className="info">
+                <strong>❓ {q.body}</strong>
+                <p className="muted small" style={{ margin: "4px 0 0" }}>💬 {q.answer}</p>
+                {q.answered_at && <span className="muted small">Atsakyta {timeAgo(q.answered_at)}</span>}
+              </div>
+              <IdForm action={deleteQuestion} id={q.id}>
+                <ConfirmButton className="btn danger small" message="Ištrinti šį klausimą ir atsakymą? Jis dings iš viešo puslapio.">Ištrinti</ConfirmButton>
               </IdForm>
             </div>
           ))}
