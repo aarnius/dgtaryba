@@ -622,3 +622,126 @@ body:has(.lock-screen) .nav, body:has(.lock-screen) .footer { display: none; }
 .chat-delete { align-self: flex-start; margin-top: 4px; padding: 0; border: 0; background: none; color: var(--muted); font: inherit; font-size: 0.78rem; text-decoration: underline; cursor: pointer; }
 .chat-delete:hover { color: #ff8a9f; }
 .chat-form .form-note { font-size: 0.72rem; }
+
+/* =========================================================
+   TV ekranas (/tv): 1920×1080 scena, kuri prisitaiko prie ekrano
+   ========================================================= */
+body:has(.tv) .nav, body:has(.tv) .footer, body:has(.tv) .skip-link { display: none; }
+body:has(.tv) main.wrap { max-width: none; padding: 0; }
+.tv { position: fixed; inset: 0; z-index: 60; overflow: hidden; background: #0c080f; cursor: none; user-select: none; }
+.tv.show-cursor { cursor: default; }
+.tv-stage {
+  position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; transform-origin: center center;
+  display: grid; grid-template-rows: 130px 1fr 168px 64px; gap: 26px; padding: 40px 56px 0; color: var(--text); overflow: hidden;
+  background: var(--bg);
+}
+.tv-stage > * { position: relative; z-index: 1; }
+.tv-bg { position: absolute !important; inset: 0; z-index: 0 !important; background-size: cover; background-position: center; opacity: 0.4; }
+.tv-shade {
+  position: absolute !important; inset: 0; z-index: 0 !important;
+  background:
+    radial-gradient(1100px 600px at 90% -10%, rgba(184, 48, 106, 0.45), transparent 60%),
+    radial-gradient(900px 600px at -10% 110%, rgba(242, 195, 61, 0.14), transparent 60%),
+    linear-gradient(180deg, rgba(20, 14, 24, 0.55), rgba(20, 14, 24, 0.92)), var(--grain);
+}
+.tv-head { display: flex; justify-content: space-between; align-items: center; }
+.tv-brand { display: flex; flex-direction: column; gap: 6px; }
+.tv-logo.ransom { font-size: 64px; margin: 0; }
+.tv-logo.xl { font-size: 140px; }
+.tv-headline { font-size: 30px; color: var(--text-2); font-weight: 600; }
+.tv-clock { text-align: right; }
+.tv-time { font-family: var(--mono); font-size: 124px; font-weight: 700; line-height: 0.95; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.tv-date { font-size: 30px; color: var(--muted); margin-top: 8px; }
+
+.tv-main { display: grid; grid-template-columns: 620px 1fr; gap: 28px; min-height: 0; }
+.tv-bell, .tv-slides {
+  border-radius: 32px; border: 1px solid var(--line-2); background: rgba(30, 22, 36, 0.82);
+  box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 230, 255, 0.06); backdrop-filter: blur(6px);
+}
+.tv-bell { display: flex; flex-direction: column; padding: 30px 38px; min-height: 0; overflow: hidden; }
+.tv-label { font-size: 20px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+.tv-bell-title { font-size: 58px; font-weight: 800; margin-top: 10px; line-height: 1.05; }
+.tv-bell-left { font-family: var(--mono); font-size: 138px; font-weight: 700; line-height: 1; margin-top: 6px; color: var(--mustard); font-variant-numeric: tabular-nums; }
+.tv-bell.break .tv-bell-left { color: var(--green); }
+.tv-bell.before .tv-bell-left { color: var(--rose); }
+.tv-bell-sub { font-size: 30px; color: var(--text-2); margin-top: 6px; }
+.tv-bar { height: 14px; border-radius: 99px; background: rgba(0, 0, 0, 0.35); overflow: hidden; margin-top: 18px; }
+.tv-bar > span { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--wine), var(--mustard)); transition: width 1s linear; }
+.tv-bell.break .tv-bar > span { background: linear-gradient(90deg, #3f6b33, var(--green)); }
+.tv-bell-next { font-size: 23px; color: var(--muted); margin-top: 12px; }
+.tv-bells { list-style: none; padding: 0; margin: auto 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 4px 14px; padding-top: 14px; }
+.tv-bells li { display: flex; gap: 14px; font-size: 23px; padding: 4px 12px; border-radius: 12px; color: var(--text-2); font-variant-numeric: tabular-nums; }
+.tv-bells li span:first-child { font-weight: 800; color: var(--muted); width: 22px; }
+.tv-bells li.now { background: var(--mustard); color: #241a05; font-weight: 700; }
+.tv-bells li.now span:first-child { color: #241a05; }
+.tv-bells li.soon { outline: 2px solid var(--green); }
+
+.tv-slides { position: relative; overflow: hidden; min-height: 0; }
+.tv-slide { position: absolute; inset: 0; padding: 36px 52px 52px; display: flex; flex-direction: column; animation: tvIn 0.9s cubic-bezier(0.2, 0.8, 0.2, 1); }
+@keyframes tvIn { from { opacity: 0; transform: translateY(24px) scale(0.99); } }
+.tv-h { font-size: 44px; font-weight: 800; margin: 0 0 22px; color: var(--text); letter-spacing: -0.01em; text-transform: none; display: block; }
+.tv-muted { font-size: 26px; color: var(--muted); }
+.tv-hint { margin-top: auto; font-size: 28px; color: var(--text-2); }
+.tv-hint b { color: var(--mustard); }
+
+.tv-events { display: flex; flex-direction: column; gap: 14px; }
+.tv-event { display: flex; align-items: center; gap: 28px; padding: 12px 22px; border-radius: 22px; background: rgba(255, 230, 255, 0.04); border: 1px solid var(--line); }
+.tv-chip { flex: none; width: 104px; border-radius: 18px; overflow: hidden; text-align: center; background: var(--bg-2); border: 1px solid var(--line-2); }
+.tv-chip span { display: block; background: var(--wine); color: #fff; font-size: 20px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; padding: 4px 0; }
+.tv-chip b { display: block; font-family: var(--mono); font-size: 46px; line-height: 1.35; }
+.tv-event-info { flex: 1; min-width: 0; }
+.tv-event-title { font-size: 40px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tv-pill { flex: none; font-size: 28px; font-weight: 800; color: #241a05; background: var(--mustard); padding: 10px 22px; border-radius: 99px; }
+
+.tv-ideas { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.tv-ideas li { display: flex; align-items: center; gap: 24px; font-size: 36px; padding: 10px 22px; border-radius: 20px; background: rgba(255, 230, 255, 0.04); border: 1px solid var(--line); }
+.tv-rank { flex: none; display: grid; place-items: center; width: 58px; height: 58px; border-radius: 50%; background: var(--wine); color: #fff; font-weight: 800; font-size: 30px; }
+.tv-ideas li:first-child .tv-rank { background: var(--mustard); color: #241a05; }
+.tv-idea { flex: 1; min-width: 0; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tv-heart { flex: none; font-family: var(--mono); color: var(--rose); font-weight: 700; }
+
+.tv-question { font-size: 54px; font-weight: 800; line-height: 1.15; margin-bottom: 30px; }
+.tv-results { display: flex; flex-direction: column; gap: 16px; }
+.tv-result { position: relative; overflow: hidden; display: flex; justify-content: space-between; align-items: center; height: 84px; padding: 0 30px; border-radius: 20px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--line-2); font-size: 36px; font-weight: 700; }
+.tv-fill { position: absolute; inset: 0 auto 0 0; background: linear-gradient(90deg, var(--wine), var(--rose-deep)); transition: width 1.2s ease; }
+.tv-opt, .tv-pct { position: relative; }
+.tv-pct { font-family: var(--mono); }
+
+.tv-photos { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); gap: 16px; min-height: 0; }
+.tv-photos img { width: 100%; height: 100%; object-fit: cover; border-radius: 20px; animation: tvZoom 14s ease-out both; }
+@keyframes tvZoom { from { transform: scale(1.08); } }
+
+.tv-slide.custom { padding: 0; }
+.tv-custom { position: relative; flex: 1; display: flex; align-items: center; justify-content: center; text-align: center; padding: 60px; background: radial-gradient(800px 500px at 50% 0%, rgba(184, 48, 106, 0.5), transparent 70%); }
+.tv-custom.has-img { align-items: flex-end; justify-content: flex-start; text-align: left; padding: 52px; }
+.tv-custom img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; animation: tvZoom 20s ease-out both; }
+.tv-custom.has-img::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 40%, rgba(12, 8, 15, 0.9)); }
+.tv-custom-text { position: relative; z-index: 1; max-width: 1000px; }
+.tv-custom-title { font-size: 76px; font-weight: 800; line-height: 1.05; letter-spacing: -0.01em; }
+.tv-custom-body { font-size: 36px; color: var(--text-2); margin-top: 16px; line-height: 1.35; }
+.tv-welcome { margin: auto; text-align: center; }
+.tv-welcome p { font-size: 40px; color: var(--text-2); max-width: 900px; }
+
+.tv-dots { position: absolute; right: 30px; bottom: 22px; display: flex; gap: 10px; z-index: 2; }
+.tv-dots span { position: relative; width: 36px; height: 6px; border-radius: 99px; background: rgba(255, 255, 255, 0.18); overflow: hidden; }
+.tv-dots span.on::after { content: ""; position: absolute; inset: 0; background: var(--mustard); transform-origin: left; animation: tvProg linear forwards; animation-duration: inherit; }
+@keyframes tvProg { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+.tv-foot { display: flex; align-items: center; gap: 36px; padding: 0 8px; }
+.tv-qr { flex: none; width: 160px; height: 160px; padding: 14px; border-radius: 24px; background: #fff; box-shadow: 0 0 0 6px rgba(242, 195, 61, 0.35); }
+.tv-qr svg { width: 100%; height: 100%; display: block; }
+.tv-cta { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.tv-cta-text { font-size: 36px; font-weight: 700; color: var(--text-2); }
+.tv-url { font-family: var(--f-shrikhand); font-size: 84px; line-height: 1; color: var(--mustard); text-shadow: 0 6px 0 var(--wine); }
+
+.tv-ticker { margin: 0 -56px; overflow: hidden; display: flex; align-items: center; background: var(--wine); border-top: 3px solid var(--mustard); }
+.tv-ticker-track { display: flex; white-space: nowrap; animation: tvTicker linear infinite; }
+.tv-ticker-track span { padding-right: 120px; font-size: 30px; font-weight: 800; color: var(--cream); }
+@keyframes tvTicker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.tv-fs-hint { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); z-index: 70; padding: 8px 16px; border-radius: 99px; background: rgba(0, 0, 0, 0.7); color: #fff; font-size: 14px; }
+@media (prefers-reduced-motion: reduce) { .tv-ticker-track, .tv-photos img, .tv-custom img { animation: none; } }
+
+.wide-preview { width: 200px; aspect-ratio: 16 / 9; border-radius: var(--r-sm); overflow: hidden; display: grid; place-items: center; background: var(--panel-2); border: 1px solid var(--line-2); font-size: 1.6rem; }
+.wide-preview img { width: 100%; height: 100%; object-fit: cover; }
+.tv-howto { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; border-color: #6b5a24; background: linear-gradient(135deg, rgba(242, 195, 61, 0.08), transparent 60%), var(--panel); }
+.tv-howto ol { margin: 6px 0 0; padding-left: 18px; color: var(--text-2); }

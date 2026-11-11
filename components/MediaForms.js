@@ -24,7 +24,7 @@ export function ActionForm({ action, children, className = "card form", submit =
 }
 
 // Vienos nuotraukos laukas su peržiūra; prieš siunčiant sumažina
-export function ImageField({ name = "photo", current, label = "Nuotrauka" }) {
+export function ImageField({ name = "photo", current, label = "Nuotrauka", max = 800, wide = false }) {
   const inputRef = useRef(null);
   const [preview, setPreview] = useState(current || null);
   const [removed, setRemoved] = useState(false);
@@ -32,7 +32,7 @@ export function ImageField({ name = "photo", current, label = "Nuotrauka" }) {
   async function onChange(e) {
     const f = e.target.files?.[0];
     if (!f) return;
-    const { file } = await resizeImage(f, 800, 0.85);
+    const { file } = await resizeImage(f, max, 0.85);
     const dt = new DataTransfer();
     dt.items.add(file);
     inputRef.current.files = dt.files;
@@ -44,7 +44,7 @@ export function ImageField({ name = "photo", current, label = "Nuotrauka" }) {
     <div className="field">
       <span>{label}</span>
       <div className="image-field">
-        <div className="avatar lg">{preview ? <img src={preview} alt="" /> : <span>📷</span>}</div>
+        <div className={wide ? "wide-preview" : "avatar lg"}>{preview ? <img src={preview} alt="" /> : <span>📷</span>}</div>
         <div className="image-field-actions">
           <label className="btn ghost small">
             {preview ? "Pakeisti" : "Pasirinkti"}
