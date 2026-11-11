@@ -78,7 +78,7 @@ export default async function PageEditor({ searchParams }) {
               <label className="field"><span>Pavadinimas</span><input name="title" required maxLength={80} placeholder="🎟️ Bilietai jau parduodami!" /></label>
               <label className="field"><span>Tekstas</span><input name="body" maxLength={200} placeholder="Ilgosios pertraukos metu prie valgyklos" /></label>
               <label className="field"><span>Kur nuves paspaudus</span><input name="url" maxLength={200} defaultValue="/" placeholder="/renginiai" /></label>
-              <small className="muted">Gauna tie, kurie paspaudė „🔔 Gauti pranešimus". Naujos apklausos ir renginiai praneša patys.</small>
+              <small className="muted">Gauna tie, kurie paspaudė „🔔 Gauti pranešimus". Naujos apklausos, renginiai ir įvykiai praneša patys.</small>
             </ActionForm>
           ) : (
             <div className="card empty small">Pranešimai dar nesukonfigūruoti</div>

@@ -44,7 +44,7 @@ export default function RootLayout({ children }) {
             <a href="/privatumas">Privatumo politika</a>
             <a href="/privatumas#slapukai">Slapukai</a>
             <a href={`mailto:${CONTACT_EMAIL}`}>Kontaktai</a>
-            <a href="/renginiai.ics">Kalendorius</a>
+            <a href="/renginiai.ics">Renginių / įvykių kalendorius</a>
             <a href="/admin">Tarybai</a>
           </nav>
         </footer>

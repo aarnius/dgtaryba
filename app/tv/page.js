@@ -31,7 +31,7 @@ export default async function TvPage() {
     <TvScreen
       tv={tv}
       bells={bells}
-      events={events.map((e) => ({ id: e.id, title: e.title, emoji: e.emoji, location: e.location, starts_at: new Date(e.starts_at).toISOString() }))}
+      events={events.map((e) => ({ id: e.id, title: e.title, emoji: e.emoji, location: e.location, starts_at: new Date(e.starts_at).toISOString(), ends_at: e.ends_at ? new Date(e.ends_at).toISOString() : null, all_day: !!e.all_day }))}
       ideas={ideas.filter((i) => i.status !== "done").slice(0, 5).map((i) => ({ id: i.id, title: i.title, votes: i.votes }))}
       poll={polls[0] ? { question: polls[0].question, options: polls[0].options.map((o) => ({ id: o.id, label: o.label, votes: o.votes })) } : null}
       photos={photos.map((p) => p.url)}

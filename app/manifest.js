@@ -17,7 +17,7 @@ export default function manifest() {
       { src: "/icon-maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
     ],
     shortcuts: [
-      { name: "Renginiai", url: "/renginiai" },
+      { name: "Renginiai / Įvykiai", url: "/renginiai" },
       { name: "Idėjos", url: "/idejos" },
       { name: "Apklausos", url: "/apklausos" },
     ],

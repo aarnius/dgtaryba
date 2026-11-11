@@ -5,7 +5,7 @@ import { adminGate } from "@/components/AdminGate";
 import { redirect } from "next/navigation";
 import { sql } from "@/lib/db";
 import { getPolls, getUpcomingEvents } from "@/lib/queries";
-import { formatDateTime, timeAgo } from "@/lib/format";
+import { formatEventWhen, timeAgo } from "@/lib/format";
 import { SubmitButton } from "@/components/Forms";
 import {
   setIdeaStatus, deleteIdea, createPoll, togglePoll, deletePoll,
@@ -144,15 +144,15 @@ export default async function AdminPage() {
       {/* ---- Renginiai ---- */}
       {eventsOk && (
       <section className="admin-section">
-        <h2>📅 Renginiai</h2>
+        <h2>📅 Renginiai / Įvykiai</h2>
         <div className="two-col">
           <div className="card">
-            {events.length === 0 && <p className="muted" style={{ margin: 0 }}>Būsimų renginių nėra</p>}
+            {events.length === 0 && <p className="muted" style={{ margin: 0 }}>Būsimų renginių ir įvykių nėra</p>}
             {events.map((e) => (
               <div key={e.id} className="admin-row">
                 <div className="info">
                   <strong>{e.emoji} {e.title}</strong>
-                  <p className="muted small" style={{ margin: 0 }}>{formatDateTime(e.starts_at)}{e.location && ` · ${e.location}`}</p>
+                  <p className="muted small" style={{ margin: 0 }}>{formatEventWhen(e)}{e.location && ` · ${e.location}`}</p>
                 </div>
                 <IdForm action={deleteEvent} id={e.id}>
                   <SubmitButton className="btn danger small" pendingText="…">Ištrinti</SubmitButton>
@@ -161,12 +161,21 @@ export default async function AdminPage() {
             ))}
           </div>
           <form action={createEvent} className="card form">
-            <h3>Naujas renginys</h3>
+            <h3>Naujas renginys / įvykis</h3>
             <div className="grid-2" style={{ gridTemplateColumns: "70px 1fr" }}>
               <input name="emoji" placeholder="🎉" maxLength={8} style={{ textAlign: "center" }} />
               <input name="title" placeholder="Pavadinimas" required maxLength={120} />
             </div>
-            <input name="starts_at" type="datetime-local" required />
+            <label className="check"><input type="checkbox" name="all_day" value="1" /> 🗓️ Visą dieną (be laiko)</label>
+            <div className="ev-when">
+              <label className="field"><span>Pradžia</span>
+                <div className="ev-pair"><input name="start_date" type="date" required /><input name="start_time" type="time" className="ev-time" /></div>
+              </label>
+              <label className="field"><span>Pabaiga (nebūtina, keliom dienom)</span>
+                <div className="ev-pair"><input name="end_date" type="date" /><input name="end_time" type="time" className="ev-time" /></div>
+              </label>
+            </div>
+            <small className="muted">Nenurodei laiko? Renginys bus „visą dieną“. Kelių dienų: pasirink pabaigos datą.</small>
             <input name="location" placeholder="Vieta (nebūtina)" maxLength={80} />
             <textarea name="description" rows={2} placeholder="Aprašymas (nebūtina)" maxLength={600} />
             <label className="check"><input type="checkbox" name="notify" value="1" defaultChecked /> 🔔 Pranešti prenumeratoriams</label>

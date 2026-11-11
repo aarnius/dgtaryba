@@ -7,7 +7,7 @@ import BellWidget from "@/components/BellWidget";
 import VideoEmbed from "@/components/VideoEmbed";
 import PushButton from "@/components/PushButton";
 import { getBells, getVideos } from "@/lib/content";
-import { formatDateTime, countdownParts } from "@/lib/format";
+import { formatEventWhen, eventOngoing, countdownParts } from "@/lib/format";
 import PollCard from "@/components/PollCard";
 import { SITE_URL, SITE_NAME, SCHOOL, SCHOOL_GEN, SITE_DESCRIPTION } from "@/lib/site";
 
@@ -46,6 +46,7 @@ export default async function Home() {
   const next = events[0];
   const poll = polls[0];
   const cd = next && countdownParts(next.starts_at);
+  const nextOn = next && eventOngoing(next);
   const topIdeas = ideas.filter((i) => i.status !== "done").slice(0, 4);
 
   return (
@@ -59,7 +60,7 @@ export default async function Home() {
 
       <header className="home-title">
         <h1>{SCHOOL_GEN} <span>mokinių taryba</span></h1>
-        <p className="muted">Siūlyk idėjas, balsuok apklausose, sek renginius ir klausk tarybos anonimiškai.</p>
+        <p className="muted">Siūlyk idėjas, balsuok apklausose, sek renginius bei įvykius ir klausk tarybos anonimiškai.</p>
         <div style={{ marginTop: 10 }}><PushButton /></div>
       </header>
 
@@ -69,19 +70,23 @@ export default async function Home() {
         <div className="hero-side">
           <BellWidget bells={bells} />
           <div className="card timer">
-            <h3>Iki kito renginio</h3>
+            <h3>{nextOn ? "Dabar vyksta" : "Iki kito renginio / įvykio"}</h3>
             {next ? (
               <>
-                <div className="digits">
-                  {cd.d}<small>d</small>{cd.h}<small>h</small>{cd.m}<small>m</small>
-                </div>
+                {nextOn ? (
+                  <div className="digits live">🔴 Vyksta!</div>
+                ) : (
+                  <div className="digits">
+                    {cd.d}<small>d</small>{cd.h}<small>h</small>{cd.m}<small>m</small>
+                  </div>
+                )}
                 <div>
                   <strong>{next.emoji} {next.title}</strong>
-                  <div className="muted small">{formatDateTime(next.starts_at)}</div>
+                  <div className="muted small">{formatEventWhen(next)}</div>
                 </div>
               </>
             ) : (
-              <p className="muted" style={{ margin: 0 }}>Renginių kol kas nėra</p>
+              <p className="muted" style={{ margin: 0 }}>Renginių ir įvykių kol kas nėra</p>
             )}
           </div>
           <div className="stat-row">
@@ -99,7 +104,7 @@ export default async function Home() {
           <span className="emoji">📊</span>Apklausos<span className="count">{stats.polls}</span>
         </Link>
         <Link href="/renginiai" className="tile c3">
-          <span className="emoji">📅</span>Renginiai<span className="count">{stats.events}</span>
+          <span className="emoji">📅</span>Renginiai / Įvykiai<span className="count">{stats.events}</span>
         </Link>
         <Link href="/klausimai" className="tile c4">
           <span className="emoji">💬</span>Klausimai<span className="count">{stats.answered}</span>

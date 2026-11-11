@@ -14,7 +14,7 @@ function IdForm({ action, id, children, extra }) {
 }
 
 const SHOW = [
-  ["events", "📅 Artėjantys renginiai"],
+  ["events", "📅 Renginiai / Įvykiai"],
   ["ideas", "💡 Populiariausios idėjos"],
   ["poll", "📊 Aktyvi apklausa"],
   ["photos", "📸 Naujausios galerijos nuotraukos"],
@@ -65,7 +65,7 @@ export default async function AdminTv() {
             <label className="field"><span>Kiek sekundžių rodyti vieną skaidrę</span><input name="slide_seconds" type="number" min={5} max={60} defaultValue={tv.slide_seconds} /></label>
           </ActionForm>
           <p className="muted small">
-            Skaidrės keičiasi ratu: renginiai → idėjos → apklausa → jūsų skaidrės → nuotraukos.
+            Skaidrės keičiasi ratu: renginiai / įvykiai → idėjos → apklausa → jūsų skaidrės → nuotraukos.
             Kairėje visada matosi pamokų laikas (jį keisti gali <a href="/admin/puslapis" className="section-link" style={{ margin: 0 }}>puslapio redaktoriuje</a>).
           </p>
         </div>

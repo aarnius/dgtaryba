@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Ransom from "./Ransom";
 import { vilniusNow, bellStatus, fmtLeft } from "@/lib/bellStatus";
+import { eventChip, formatEventWhen, eventCountdown } from "@/lib/format";
 
 const TZ = "Europe/Vilnius";
 const clockFmt = new Intl.DateTimeFormat("lt-LT", { timeZone: TZ, hour: "2-digit", minute: "2-digit" });
@@ -13,16 +14,7 @@ const hmFmt = new Intl.DateTimeFormat("lt-LT", { timeZone: TZ, hour: "2-digit", 
 const cap = (x) => x.charAt(0).toUpperCase() + x.slice(1);
 // „Trečiadienis, lapkričio 11 d.“
 const longDate = (d) => `${cap(wdFmt.format(d))}, ${mdFmt.format(d)}`;
-// „Penktadienis 18:00“
-const eventWhen = (d) => `${cap(wdFmt.format(d))} ${hmFmt.format(d)}`;
-const dayFmt = new Intl.DateTimeFormat("lt-LT", { timeZone: TZ, day: "numeric" });
-const monFmt = new Intl.DateTimeFormat("en-GB", { timeZone: TZ, month: "numeric" });
-const MONTHS = ["Sau", "Vas", "Kov", "Bal", "Geg", "Bir", "Lie", "Rgp", "Rgs", "Spl", "Lap", "Grd"];
 
-function daysUntil(iso) {
-  const d = Math.ceil((new Date(iso).getTime() - Date.now()) / 86400000);
-  return d <= 0 ? "Šiandien!" : d === 1 ? "Rytoj!" : `Po ${d} d.`;
-}
 
 // 1920×1080 „scena“, kuri automatiškai prisitaiko prie bet kokio ekrano
 function useStageScale() {
@@ -127,18 +119,22 @@ export default function TvScreen({ tv, bells, events, ideas, poll, photos, ticke
             <div key={cur.key + idx} className={`tv-slide ${cur.kind}`}>
               {cur.kind === "events" && (
                 <>
-                  <h2 className="tv-h">📅 Artėjantys renginiai</h2>
+                  <h2 className="tv-h">📅 Renginiai / Įvykiai</h2>
                   <div className="tv-events">
-                    {events.slice(0, 3).map((e) => (
+                    {events.slice(0, 3).map((e) => {
+                      const chip = eventChip(e);
+                      const cd = eventCountdown(e);
+                      return (
                       <div key={e.id} className="tv-event">
-                        <div className="tv-chip"><span>{MONTHS[Number(monFmt.format(new Date(e.starts_at))) - 1]}</span><b>{dayFmt.format(new Date(e.starts_at))}</b></div>
+                        <div className={`tv-chip${chip.wide ? " wide" : ""}`}><span>{chip.m}</span><b>{chip.d}</b></div>
                         <div className="tv-event-info">
                           <div className="tv-event-title">{e.emoji} {e.title}</div>
-                          <div className="tv-muted">{eventWhen(new Date(e.starts_at))}{e.location ? ` · ${e.location}` : ""}</div>
+                          <div className="tv-muted">{formatEventWhen(e)}{e.location ? ` · ${e.location}` : ""}</div>
                         </div>
-                        <div className="tv-pill">{daysUntil(e.starts_at)}</div>
+                        <div className={`tv-pill${cd.startsWith("vyksta") ? " live" : ""}`}>{cap(cd)}</div>
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </>
               )}

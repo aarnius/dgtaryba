@@ -7,7 +7,7 @@ import Ransom from "./Ransom";
 const LINKS = [
   { href: "/idejos", label: "Idėjos", emoji: "💡" },
   { href: "/apklausos", label: "Apklausos", emoji: "📊" },
-  { href: "/renginiai", label: "Renginiai", emoji: "📅" },
+  { href: "/renginiai", label: "Renginiai / Įvykiai", emoji: "📅" },
   { href: "/klausimai", label: "Klausimai", emoji: "💬" },
   { href: "/galerija", label: "Galerija", emoji: "📸" },
   { href: "/taryba", label: "Taryba", emoji: "🏛️" },

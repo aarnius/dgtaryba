@@ -108,12 +108,33 @@ export async function createEvent(formData) {
   const description = clean(formData.get("description"), 600);
   const location = clean(formData.get("location"), 80);
   const emoji = clean(formData.get("emoji"), 8) || "🎉";
-  const startsAt = String(formData.get("starts_at") ?? ""); // "2026-12-20T18:00"
-  if (!title || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(startsAt)) return;
-  await sql`INSERT INTO events (title, description, location, emoji, starts_at)
-            VALUES (${title}, ${description}, ${location}, ${emoji},
-                    (${startsAt}::timestamp AT TIME ZONE 'Europe/Vilnius'))`;
-  if (formData.get("notify")) after(() => notifyAll({ title: `${emoji} ${title}`, body: location ? `Naujas renginys · ${location}` : "Naujas renginys", url: "/renginiai" }));
+  const isDay = (v) => /^\d{4}-\d{2}-\d{2}$/.test(v);
+  const isTime = (v) => /^\d{2}:\d{2}$/.test(v);
+  const startDay = String(formData.get("start_date") ?? "");
+  const startTime = String(formData.get("start_time") ?? "");
+  const endDayRaw = String(formData.get("end_date") ?? "");
+  const endTime = String(formData.get("end_time") ?? "");
+  if (!title || !isDay(startDay)) return;
+  // Be laiko = visos dienos renginys
+  const allDay = formData.get("all_day") === "1" || !isTime(startTime);
+  const endDay = isDay(endDayRaw) && endDayRaw >= startDay ? endDayRaw : startDay;
+
+  let start, end;
+  if (allDay) {
+    start = `${startDay}T00:00`;
+    end = null; // skaičiuojam SQL: paskutinė diena + 1
+  } else {
+    start = `${startDay}T${startTime}`;
+    end = isTime(endTime) ? `${endDay}T${endTime}` : endDay !== startDay ? `${endDay}T23:59` : null;
+    if (end && end <= start) end = null;
+  }
+  await sql`INSERT INTO events (title, description, location, emoji, all_day, starts_at, ends_at)
+            VALUES (${title}, ${description}, ${location}, ${emoji}, ${allDay},
+                    (${start}::timestamp AT TIME ZONE 'Europe/Vilnius'),
+                    CASE WHEN ${allDay} THEN ((${endDay}::date + 1)::timestamp AT TIME ZONE 'Europe/Vilnius')
+                         WHEN ${end}::text IS NULL THEN NULL
+                         ELSE (${end}::timestamp AT TIME ZONE 'Europe/Vilnius') END)`;
+  if (formData.get("notify")) after(() => notifyAll({ title: `${emoji} ${title}`, body: location ? `Naujas renginys / įvykis · ${location}` : "Naujas renginys / įvykis", url: "/renginiai" }));
   refresh();
 }
 

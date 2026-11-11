@@ -155,6 +155,7 @@ textarea { resize: vertical; }
 .timer { display: flex; flex-direction: column; gap: 14px; flex: 1; }
 .timer > h3:first-child { margin-bottom: 4px; }
 .timer .digits { font-family: var(--mono); font-size: 2.5rem; font-weight: 700; line-height: 1; }
+.timer .digits.live { font-size: 1.8rem; color: var(--rose); }
 .timer .digits small { font-size: 0.85rem; color: var(--muted); margin: 0 8px 0 2px; font-weight: 500; }
 .stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .stat { text-align: center; padding: 14px 10px; }
@@ -248,6 +249,9 @@ textarea { resize: vertical; }
 .date-chip { flex: none; width: 70px; text-align: center; overflow: hidden; border-radius: var(--r-sm); border: 1px solid var(--line-2); background: var(--field); }
 .date-chip .m { display: block; background: var(--wine); color: #fff; font-weight: 800; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.1em; padding: 3px 0; }
 .date-chip .d { display: block; font-family: var(--mono); font-weight: 700; font-size: 1.7rem; line-height: 1.5; }
+.date-chip.wide { width: auto; min-width: 70px; }
+.date-chip.wide .d { font-size: 1.25rem; line-height: 2; padding: 0 8px; white-space: nowrap; }
+.date-chip.wide .m { padding: 3px 8px; }
 .event-info { min-width: 180px; flex: 1; }
 .event-info p { margin: 2px 0; }
 .countdown {
@@ -689,6 +693,13 @@ body:has(.tv) main.wrap { max-width: none; padding: 0; }
 .tv-chip { flex: none; width: 104px; border-radius: 18px; overflow: hidden; text-align: center; background: var(--bg-2); border: 1px solid var(--line-2); }
 .tv-chip span { display: block; background: var(--wine); color: #fff; font-size: 20px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; padding: 4px 0; }
 .tv-chip b { display: block; font-family: var(--mono); font-size: 46px; line-height: 1.35; }
+.tv-chip.wide { width: auto; min-width: 104px; }
+.tv-chip.wide b { font-size: 34px; line-height: 1.85; padding: 0 14px; white-space: nowrap; }
+.tv-chip.wide span { padding: 4px 14px; }
+.tv-pill.live { background: var(--rose); color: #2a0f1f; border-color: transparent; }
+.ev-pair { display: grid; grid-template-columns: 1fr 120px; gap: 8px; }
+form:has(input[name="all_day"]:checked) .ev-time { display: none; }
+form:has(input[name="all_day"]:checked) .ev-pair { grid-template-columns: 1fr; }
 .tv-event-info { flex: 1; min-width: 0; }
 .tv-event-title { font-size: 40px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .tv-pill { flex: none; font-size: 28px; font-weight: 800; color: #241a05; background: var(--mustard); padding: 10px 22px; border-radius: 99px; }
