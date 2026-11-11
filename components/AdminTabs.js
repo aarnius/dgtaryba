@@ -5,7 +5,7 @@ const TABS = [
   { id: "pultas", href: "/admin", label: "🎛️ Pultas", show: (u) => u.perms.some((p) => ["ideas", "questions", "polls", "events"].includes(p)) },
   { id: "pokalbiai", href: "/admin/pokalbiai", label: "💬 Pokalbiai", show: (u) => can(u, "questions") },
   { id: "puslapis", href: "/admin/puslapis", label: "✏️ Puslapio redaktorius", show: (u) => can(u, "page") },
-  { id: "tv", href: "/admin/tv", label: "📺 TV", show: (u) => can(u, "page") },
+  { id: "tv", href: "/admin/tv", label: "📺 TV", show: (u) => can(u, "tv") },
   { id: "taryba", href: "/admin/taryba", label: "🏛️ Taryba", show: (u) => can(u, "council") },
   { id: "galerija", href: "/admin/galerija", label: "📸 Galerija", show: (u) => can(u, "council") },
   { id: "vartotojai", href: "/admin/vartotojai", label: "👥 Vartotojai", show: (u) => can(u, "members") },

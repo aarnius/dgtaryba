@@ -11,7 +11,7 @@ const clean = (v, max) => String(v ?? "").trim().slice(0, max);
 const refresh = () => { revalidatePath("/tv"); revalidatePath("/admin/tv"); };
 
 export async function saveTvSettings(_prev, fd) {
-  await requirePerm("page");
+  await requirePerm("tv");
   try {
     const tv = await getTv();
     const bg = await uploadImage(fd.get("photo"), "tv");
@@ -37,7 +37,7 @@ export async function saveTvSettings(_prev, fd) {
 }
 
 export async function addTvSlide(_prev, fd) {
-  await requirePerm("page");
+  await requirePerm("tv");
   try {
     const title = clean(fd.get("title"), 80);
     const text = clean(fd.get("text"), 280);
@@ -54,7 +54,7 @@ export async function addTvSlide(_prev, fd) {
 }
 
 export async function deleteTvSlide(fd) {
-  await requirePerm("page");
+  await requirePerm("tv");
   const id = String(fd.get("id"));
   const tv = await getTv();
   const gone = tv.slides.find((s) => s.id === id);
@@ -65,7 +65,7 @@ export async function deleteTvSlide(fd) {
 }
 
 export async function moveTvSlide(fd) {
-  await requirePerm("page");
+  await requirePerm("tv");
   const id = String(fd.get("id"));
   const up = fd.get("dir") === "up";
   const tv = await getTv();

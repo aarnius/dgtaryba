@@ -21,7 +21,7 @@ const SHOW = [
 ];
 
 export default async function AdminTv() {
-  const { user, block } = await adminGate("page");
+  const { user, block } = await adminGate("tv");
   if (block) return block;
   const tv = await getTv();
 

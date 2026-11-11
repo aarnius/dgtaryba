@@ -29,7 +29,7 @@ export default async function AdminPage() {
   const { user, block } = await adminGate();
   if (block) return block;
   const ideasOk = can(user, "ideas"), qOk = can(user, "questions"), pollsOk = can(user, "polls"), eventsOk = can(user, "events");
-  if (!ideasOk && !qOk && !pollsOk && !eventsOk) redirect(can(user, "page") ? "/admin/puslapis" : can(user, "council") ? "/admin/taryba" : "/admin/vartotojai");
+  if (!ideasOk && !qOk && !pollsOk && !eventsOk) redirect(can(user, "page") ? "/admin/puslapis" : can(user, "tv") ? "/admin/tv" : can(user, "council") ? "/admin/taryba" : "/admin/vartotojai");
 
   const none = Promise.resolve([]);
   const [pendingIdeas, liveIdeas, questions, polls, events] = await Promise.all([
