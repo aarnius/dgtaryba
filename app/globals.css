@@ -369,6 +369,9 @@ select { appearance: auto; }
 
 /* ---------- Prisijungimas ---------- */
 .auth-card { gap: 14px; }
+.btn.passkey { display: inline-flex; align-items: center; justify-content: center; gap: 10px; }
+.auth-card .center { text-align: center; margin-top: -6px; }
+.who .btn.on { border-color: var(--mustard); color: var(--mustard); }
 .btn.google { display: inline-flex; align-items: center; justify-content: center; gap: 10px; background: #fff; color: #1f1f1f; }
 .or { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 0.8rem; }
 .or::before, .or::after { content: ""; flex: 1; height: 1px; background: var(--line-2); }

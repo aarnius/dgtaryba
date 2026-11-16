@@ -7,7 +7,7 @@ export const metadata = {
   alternates: { canonical: "/privatumas" },
 };
 
-const UPDATED = "2026 m. lapkričio 5 d.";
+const UPDATED = "2026 m. lapkričio 16 d.";
 
 export default function PrivacyPage() {
   const mail = <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>;
@@ -41,6 +41,7 @@ export default function PrivacyPage() {
             <tr><td>Pokalbis su taryba</td><td>Žinutės; vardas tik jei pats įrašai</td><td>Atsakyti į tavo žinutę. Mato tik tarybos nariai. Ištriname po 12 mėn. nuo paskutinės žinutės, o pats gali ištrinti bet kada.</td></tr>
             <tr><td>Pranešimai</td><td>Naršyklės pranešimų adresas</td><td>Pranešimams siųsti, tik jei pats paspaudei „Gauti pranešimus“. Ištriname, kai atsisakai.</td></tr>
             <tr><td>Tarybos nariai</td><td>El. paštas, vardas, (jei jungiasi per Google) profilio nuotrauka; viešame puslapyje vardas, pareigos, klasė, nuotrauka</td><td>Prisijungti prie tarybos įrankių ir pristatyti tarybą. Viešai skelbiama tik su nario sutikimu.</td></tr>
+            <tr><td>Passkey (tarybos nariams)</td><td>Viešasis passkey raktas, įrenginio pavadinimas, el. paštas, naudojimo laikas. Biometrija (pirštas, veidas) lieka tik tavo įrenginyje ir mums niekada neperduodama</td><td>Prisijungti be slaptažodžio. Laikome, kol pats ištrini passkey arba nustoji būti tarybos nariu.</td></tr>
             <tr><td>Galerija</td><td>Renginių nuotraukos</td><td>Renginiams pristatyti. Skelbiame pagal gimnazijos nustatytą tvarką ir gautus sutikimus. Pašaliname paprašius.</td></tr>
             <tr><td>Serverio žurnalai</td><td>IP adresas, naršyklė, užklausos laikas</td><td>Svetainės saugumui ir klaidoms taisyti. Laikomi trumpai (apie 1 val.).</td></tr>
           </tbody>
@@ -80,6 +81,7 @@ export default function PrivacyPage() {
           <tbody>
             <tr><td><code>voter</code></td><td>Anoniminis numeris, kad balsuotum vieną kartą ir matytum savo pokalbį</td><td>1 metai</td></tr>
             <tr><td>Prisijungimo sesija (Neon Auth)</td><td>Tik tarybos nariams: kad liktų prisijungę</td><td>Iki atsijungimo</td></tr>
+            <tr><td><code>dg_pk</code>, <code>dg_pk_chal</code></td><td>Tik tarybos nariams, prisijungusiems su passkey: prisijungimo sesija ir vienkartinis patikrinimo kodas</td><td>30 d. / 5 min.</td></tr>
             <tr><td><code>dg_pass</code></td><td>Tik kai svetainė užrakinta: prisimena, kad įvedei slaptažodį</td><td>30 d.</td></tr>
             <tr><td><code>dg-embeds</code> (naršyklės atmintis)</td><td>Prisimena, jei pažymėjai „Visada rodyti video“</td><td>Kol išvalysi</td></tr>
           </tbody>

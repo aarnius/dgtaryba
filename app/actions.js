@@ -8,6 +8,7 @@ import { sql } from "@/lib/db";
 import { ensureVoter, getCurrentUser, requirePerm } from "@/lib/session";
 import { getAuth } from "@/lib/auth/server";
 import { PERMS, OWNER_EMAIL } from "@/lib/perms";
+import { endPasskeySession } from "@/lib/passkey";
 import { KINDS, PLACES, COLORS, cleanUrl } from "@/lib/blocks";
 
 const clean = (v, max) => String(v ?? "").trim().slice(0, max);
@@ -308,6 +309,7 @@ export async function verifyCode(_prev, formData) {
 
 export async function signOut() {
   try { await getAuth().signOut(); } catch {}
+  await endPasskeySession();
   redirect("/");
 }
 

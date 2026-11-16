@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import { authClient } from "@/lib/auth/client";
 import { signInEmail, signUpEmail, verifyCode, resendCode } from "@/app/actions";
 import { SubmitButton, Feedback } from "./Forms";
+import { PasskeyLoginButton } from "./Passkey";
 
 function GoogleButton() {
   const [busy, setBusy] = useState(false);
@@ -50,6 +51,7 @@ export function LoginPanel({ error }) {
     <div className="card form narrow auth-card">
       <h3>Tarybos zona</h3>
       {error && <p className="note err">{error}</p>}
+      <PasskeyLoginButton />
       <GoogleButton />
       <div className="or"><span>arba su el. paštu</span></div>
 

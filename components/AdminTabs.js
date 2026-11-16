@@ -22,6 +22,7 @@ export default function AdminTabs({ active, user }) {
       <div className="who">
         {user.image && <img src={user.image} alt="" width={26} height={26} />}
         <span className="small">{user.email}{user.isOwner && <span className="tag owner">Savininkas</span>}</span>
+        <a href="/admin/passkey" className={`btn ghost small${active === "passkey" ? " on" : ""}`}>🔑 Passkey</a>
         <form action={signOut}><button className="btn ghost small">Atsijungti</button></form>
       </div>
     </div>
